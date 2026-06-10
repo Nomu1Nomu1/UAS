@@ -2,24 +2,21 @@
 // UAS/index.php
 require_once __DIR__ . '/config/db.php';
 
+// ====================== ROUTER ======================
 $request_uri = $_SERVER['REQUEST_URI'];
-$base_folder = '/pw/UAS';
+$base_folder = BASE_URL;   // dari config/db.php
 
-// Hilangkan base folder dari URL
+// Bersihkan URI
 $uri = str_replace($base_folder, '', $request_uri);
-$uri = trim($uri, '/');
+$uri = strtok(trim($uri, '/'), '?');
 
-// Default ke login jika kosong
 if (empty($uri) || $uri === 'index.php') {
-    $uri = 'auth/login';
+    $uri = 'dashboard/index';        // ← Langsung ke Dashboard
 }
 
-$segments = explode('/', $uri);
-$controllerName = ucfirst(strtolower($segments[0] ?? 'auth')) . 'Controller';
-$method         = $segments[1] ?? 'login';
-
-// Untuk debug (sementara)
-echo "<!-- DEBUG URL: $request_uri → $uri | Controller: $controllerName | Method: $method -->";
+$segments       = explode('/', $uri);
+$controllerName = ucfirst(strtolower($segments[0] ?? 'dashboard')) . 'Controller';
+$method         = $segments[1] ?? 'index';
 
 $controllerFile = __DIR__ . "/controller/{$controllerName}.php";
 
@@ -31,10 +28,12 @@ if (file_exists($controllerFile)) {
     if (method_exists($controller, $method)) {
         $controller->$method();
     } else {
-        die("Method <b>$method</b> tidak ditemukan di controller <b>$controllerName</b>");
+        http_response_code(404);
+        die("Method <b>{$method}</b> tidak ditemukan di controller <b>{$controllerName}</b>.");
     }
 } else {
-    die("Controller <b>$controllerName</b> tidak ditemukan.<br>
-         Path yang dicari: <b>$controllerFile</b><br><br>
-         <a href='{$base_folder}/auth/login'>→ Ke Halaman Login</a>");
+    http_response_code(404);
+    die("Controller <b>{$controllerName}</b> tidak ditemukan.<br>
+         Path: <b>{$controllerFile}</b><br><br>
+         <a href='" . BASE_URL . "/dashboard/index'>→ Ke Dashboard</a>");
 }

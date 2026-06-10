@@ -1,12 +1,13 @@
 <?php
 require_once __DIR__ . '/../config/db.php';
 
-class KategoriController {
-
-    public function index() {
+class KategoriController
+{
+    public function index(): void
+    {
         if (!is_logged_in()) redirect('auth/login');
 
-        $db        = getDB();
+        $db       = getDB();
         $kategoris = $db->query(
             "SELECT k.*, COUNT(p.id) AS jumlah_produk
              FROM kategori_product k
@@ -19,7 +20,8 @@ class KategoriController {
         require_once __DIR__ . '/../view/kategori/index.php';
     }
 
-    public function create() {
+    public function create(): void
+    {
         if (!is_logged_in()) redirect('auth/login');
         allow_roles(['owner', 'admin']);
 
@@ -33,7 +35,9 @@ class KategoriController {
                 $error = 'Nama kategori wajib diisi.';
             } else {
                 $db   = getDB();
-                $stmt = $db->prepare("INSERT INTO kategori_product (nama_kategori, deskripsi) VALUES (?, ?)");
+                $stmt = $db->prepare(
+                    "INSERT INTO kategori_product (nama_kategori, deskripsi) VALUES (?, ?)"
+                );
                 $stmt->bind_param('ss', $nama, $deskripsi);
                 $stmt->execute();
                 redirect('kategori/index');
@@ -44,11 +48,12 @@ class KategoriController {
         require_once __DIR__ . '/../view/kategori/create.php';
     }
 
-    public function edit() {
+    public function edit(): void
+    {
         if (!is_logged_in()) redirect('auth/login');
         allow_roles(['owner', 'admin']);
 
-        $id = (int)($_GET['id'] ?? 0);
+        $id = (int) ($_GET['id'] ?? 0);
         $db = getDB();
 
         $stmt = $db->prepare("SELECT * FROM kategori_product WHERE id = ?");
@@ -67,7 +72,9 @@ class KategoriController {
             if (empty($nama)) {
                 $error = 'Nama kategori wajib diisi.';
             } else {
-                $stmt = $db->prepare("UPDATE kategori_product SET nama_kategori=?, deskripsi=? WHERE id=?");
+                $stmt = $db->prepare(
+                    "UPDATE kategori_product SET nama_kategori = ?, deskripsi = ? WHERE id = ?"
+                );
                 $stmt->bind_param('ssi', $nama, $deskripsi, $id);
                 $stmt->execute();
                 redirect('kategori/index');
@@ -78,15 +85,19 @@ class KategoriController {
         require_once __DIR__ . '/../view/kategori/edit.php';
     }
 
-    public function delete() {
+    public function delete(): void
+    {
         if (!is_logged_in()) redirect('auth/login');
         allow_roles(['owner', 'admin']);
 
-        $id   = (int)($_GET['id'] ?? 0);
-        $db   = getDB();
-        $used = $db->query(
-            "SELECT COUNT(*) AS c FROM product WHERE kategori_id = $id"
-        )->fetch_assoc()['c'];
+        $id = (int) ($_GET['id'] ?? 0);
+        $db = getDB();
+
+        // Cek apakah kategori masih dipakai produk (gunakan prepared statement)
+        $stmt = $db->prepare("SELECT COUNT(*) AS c FROM product WHERE kategori_id = ?");
+        $stmt->bind_param('i', $id);
+        $stmt->execute();
+        $used = (int) $stmt->get_result()->fetch_assoc()['c'];
 
         if ($used > 0) {
             $_SESSION['flash'] = 'Kategori tidak dapat dihapus karena masih digunakan oleh produk.';

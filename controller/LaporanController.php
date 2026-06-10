@@ -1,9 +1,10 @@
 <?php
 require_once __DIR__ . '/../config/db.php';
 
-class LaporanController {
-
-    public function index() {
+class LaporanController
+{
+    public function index(): void
+    {
         if (!is_logged_in()) redirect('auth/login');
         allow_roles(['owner', 'admin']);
 
@@ -11,14 +12,15 @@ class LaporanController {
         require_once __DIR__ . '/../view/laporan/index.php';
     }
 
-    public function penjualan() {
+    public function penjualan(): void
+    {
         if (!is_logged_in()) redirect('auth/login');
         allow_roles(['owner', 'admin']);
 
-        $db        = getDB();
-        $dari      = $_GET['dari']   ?? date('Y-m-01');
-        $sampai    = $_GET['sampai'] ?? date('Y-m-d');
-        
+        $db     = getDB();
+        $dari   = $_GET['dari']   ?? date('Y-m-01');
+        $sampai = $_GET['sampai'] ?? date('Y-m-d');
+
         $stmt = $db->prepare(
             "SELECT DATE(tanggal_transaksi) AS tgl,
                     COUNT(*) AS jumlah_trx,
@@ -38,9 +40,9 @@ class LaporanController {
                     SUM(dt.qty) AS total_terjual,
                     SUM(dt.subtotal) AS total_pendapatan
              FROM detail_transaksi dt
-             JOIN transaksi t ON dt.id_trx = t.id
-             JOIN product p   ON dt.produk_id = p.id
-             JOIN kategori_product k ON p.kategori_id = k.id
+             JOIN transaksi        t  ON dt.id_trx     = t.id
+             JOIN product          p  ON dt.produk_id  = p.id
+             JOIN kategori_product k  ON p.kategori_id = k.id
              WHERE t.status = 'Selesai'
                AND DATE(t.tanggal_transaksi) BETWEEN ? AND ?
              GROUP BY dt.produk_id
@@ -65,7 +67,8 @@ class LaporanController {
         require_once __DIR__ . '/../view/laporan/penjualan.php';
     }
 
-    public function stokHabis() {
+    public function stokHabis(): void
+    {
         if (!is_logged_in()) redirect('auth/login');
         allow_roles(['owner', 'admin']);
 
@@ -75,7 +78,7 @@ class LaporanController {
             "SELECT p.kode_barang, p.nama_barang, p.stock, p.stock_min,
                     p.satuan, k.nama_kategori, d.nama_distributor, d.no_hp AS dist_no_hp
              FROM product p
-             JOIN kategori_product k ON p.kategori_id   = k.id
+             JOIN kategori_product k ON p.kategori_id    = k.id
              JOIN distributors     d ON p.distributor_id = d.id
              WHERE p.stock <= p.stock_min
              ORDER BY p.stock ASC"

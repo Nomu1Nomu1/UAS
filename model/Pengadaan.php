@@ -12,24 +12,24 @@ class Pengadaan
 
     public function getAll(string $search = '', string $status = ''): array
     {
-        $sql = "SELECT pg.*, d.nama_distributor, u.nama AS user_nama
-                FROM pengadaan pg
-                JOIN distributors d ON pg.distributor_id = d.id
-                JOIN users        u ON pg.user_id         = u.user_id
-                WHERE 1=1";
+        $sql    = "SELECT pg.*, d.nama_distributor, u.nama AS user_nama
+                   FROM pengadaan pg
+                   JOIN distributors d ON pg.distributor_id = d.id
+                   JOIN users        u ON pg.user_id        = u.user_id
+                   WHERE 1=1";
         $params = [];
         $types  = '';
 
         if ($search !== '') {
-            $like    = "%$search%";
-            $sql    .= " AND (pg.no_pengadaan LIKE ? OR d.nama_distributor LIKE ?)";
+            $like     = "%{$search}%";
+            $sql     .= " AND (pg.no_pengadaan LIKE ? OR d.nama_distributor LIKE ?)";
             $params[] = $like;
             $params[] = $like;
             $types   .= 'ss';
         }
 
         if (in_array($status, ['Pending', 'Diterima', 'Dibatalkan'])) {
-            $sql    .= " AND pg.status = ?";
+            $sql     .= " AND pg.status = ?";
             $params[] = $status;
             $types   .= 's';
         }
@@ -52,7 +52,7 @@ class Pengadaan
             "SELECT pg.*, d.nama_distributor, d.no_hp AS dist_no_hp, u.nama AS user_nama
              FROM pengadaan pg
              JOIN distributors d ON pg.distributor_id = d.id
-             JOIN users        u ON pg.user_id         = u.user_id
+             JOIN users        u ON pg.user_id        = u.user_id
              WHERE pg.id = ?"
         );
         $stmt->bind_param('i', $id);
@@ -78,9 +78,9 @@ class Pengadaan
     {
         if (empty($items)) return false;
 
-        $now           = date('Y-m-d H:i:s');
-        $no_pengadaan  = 'PGD-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -5));
-        $total_harga   = 0;
+        $now          = date('Y-m-d H:i:s');
+        $no_pengadaan = 'PGD-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -5));
+        $total_harga  = 0;
 
         foreach ($items as $item) {
             $qty   = (int)   ($item['qty']          ?? 0);
@@ -96,8 +96,9 @@ class Pengadaan
                      total_harga, status, keterangan, createdAt, updatedAt)
                  VALUES (?, ?, ?, ?, ?, 'Pending', ?, ?, ?)"
             );
+            // FIX: bind string yang benar — 8 params: s,i,i,s,d,s,s,s
             $stmt->bind_param(
-                'siisdss s',
+                'siisdsss',
                 $no_pengadaan, $distributor_id, $user_id, $now,
                 $total_harga, $keterangan, $now, $now
             );
@@ -105,15 +106,16 @@ class Pengadaan
             $pengadaan_id = $this->db->insert_id;
 
             foreach ($items as $item) {
-                $produk_id  = (int)   ($item['produk_id']    ?? 0);
-                $qty        = (int)   ($item['qty']          ?? 0);
-                $harga_sat  = (float) ($item['harga_satuan'] ?? 0);
-                $subtotal   = $qty * $harga_sat;
+                $produk_id = (int)   ($item['produk_id']    ?? 0);
+                $qty       = (int)   ($item['qty']          ?? 0);
+                $harga_sat = (float) ($item['harga_satuan'] ?? 0);
+                $subtotal  = $qty * $harga_sat;
 
                 if ($produk_id <= 0 || $qty <= 0) continue;
 
                 $stmt2 = $this->db->prepare(
-                    "INSERT INTO detail_pengadaan (id_pengadaan, produk_id, qty, harga_satuan, subtotal)
+                    "INSERT INTO detail_pengadaan
+                        (id_pengadaan, produk_id, qty, harga_satuan, subtotal)
                      VALUES (?, ?, ?, ?, ?)"
                 );
                 $stmt2->bind_param('iiidd', $pengadaan_id, $produk_id, $qty, $harga_sat, $subtotal);
@@ -135,29 +137,31 @@ class Pengadaan
         );
         $stmt->bind_param('i', $id);
         $stmt->execute();
-        $pengadaan = $stmt->get_result()->fetch_assoc();
+        if (!$stmt->get_result()->fetch_assoc()) return false;
 
-        if (!$pengadaan) return false;
-
-        $details = $this->db->query(
-            "SELECT produk_id, qty FROM detail_pengadaan WHERE id_pengadaan = $id"
-        )->fetch_all(MYSQLI_ASSOC);
+        // FIX: gunakan prepared statement
+        $stmt2 = $this->db->prepare(
+            "SELECT produk_id, qty FROM detail_pengadaan WHERE id_pengadaan = ?"
+        );
+        $stmt2->bind_param('i', $id);
+        $stmt2->execute();
+        $details = $stmt2->get_result()->fetch_all(MYSQLI_ASSOC);
 
         $this->db->begin_transaction();
         try {
-            $now  = date('Y-m-d H:i:s');
-            $stmt = $this->db->prepare(
-                "UPDATE pengadaan SET status='Diterima', updatedAt=? WHERE id=?"
+            $now   = date('Y-m-d H:i:s');
+            $stmt3 = $this->db->prepare(
+                "UPDATE pengadaan SET status = 'Diterima', updatedAt = ? WHERE id = ?"
             );
-            $stmt->bind_param('si', $now, $id);
-            $stmt->execute();
+            $stmt3->bind_param('si', $now, $id);
+            $stmt3->execute();
 
             foreach ($details as $d) {
-                $stmt2 = $this->db->prepare(
-                    "UPDATE product SET stock = stock + ?, updatedAt=? WHERE id=?"
+                $stmt4 = $this->db->prepare(
+                    "UPDATE product SET stock = stock + ?, updatedAt = ? WHERE id = ?"
                 );
-                $stmt2->bind_param('isi', $d['qty'], $now, $d['produk_id']);
-                $stmt2->execute();
+                $stmt4->bind_param('isi', $d['qty'], $now, $d['produk_id']);
+                $stmt4->execute();
             }
 
             $this->db->commit();
@@ -175,12 +179,11 @@ class Pengadaan
         );
         $stmt->bind_param('i', $id);
         $stmt->execute();
-
         if (!$stmt->get_result()->fetch_assoc()) return false;
 
         $now  = date('Y-m-d H:i:s');
         $stmt = $this->db->prepare(
-            "UPDATE pengadaan SET status='Dibatalkan', updatedAt=? WHERE id=?"
+            "UPDATE pengadaan SET status = 'Dibatalkan', updatedAt = ? WHERE id = ?"
         );
         $stmt->bind_param('si', $now, $id);
         return $stmt->execute();

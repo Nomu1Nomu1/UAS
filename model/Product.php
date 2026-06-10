@@ -12,24 +12,24 @@ class Product
 
     public function getAll(string $search = '', int $kategori_id = 0): array
     {
-        $sql = "SELECT p.*, k.nama_kategori, d.nama_distributor
-                FROM product p
-                JOIN kategori_product k ON p.kategori_id   = k.id
-                JOIN distributors     d ON p.distributor_id = d.id
-                WHERE 1=1";
+        $sql    = "SELECT p.*, k.nama_kategori, d.nama_distributor
+                   FROM product p
+                   JOIN kategori_product k ON p.kategori_id    = k.id
+                   JOIN distributors     d ON p.distributor_id = d.id
+                   WHERE 1=1";
         $params = [];
         $types  = '';
 
         if ($search !== '') {
-            $like    = "%$search%";
-            $sql    .= " AND (p.nama_barang LIKE ? OR p.kode_barang LIKE ?)";
+            $like     = "%{$search}%";
+            $sql     .= " AND (p.nama_barang LIKE ? OR p.kode_barang LIKE ?)";
             $params[] = $like;
             $params[] = $like;
             $types   .= 'ss';
         }
 
         if ($kategori_id > 0) {
-            $sql    .= " AND p.kategori_id = ?";
+            $sql     .= " AND p.kategori_id = ?";
             $params[] = $kategori_id;
             $types   .= 'i';
         }
@@ -51,7 +51,7 @@ class Product
         $stmt = $this->db->prepare(
             "SELECT p.*, k.nama_kategori, d.nama_distributor
              FROM product p
-             JOIN kategori_product k ON p.kategori_id   = k.id
+             JOIN kategori_product k ON p.kategori_id    = k.id
              JOIN distributors     d ON p.distributor_id = d.id
              WHERE p.id = ?"
         );
@@ -61,13 +61,12 @@ class Product
         return $result ?: null;
     }
 
-
     public function getForSelect(bool $onlyInStock = false): array
     {
         $where = $onlyInStock ? "WHERE stock > 0" : "";
         return $this->db->query(
             "SELECT id, kode_barang, nama_barang, harga_jual, harga_beli, stock, satuan
-             FROM product $where ORDER BY nama_barang"
+             FROM product {$where} ORDER BY nama_barang"
         )->fetch_all(MYSQLI_ASSOC);
     }
 
@@ -77,7 +76,7 @@ class Product
             "SELECT p.kode_barang, p.nama_barang, p.stock, p.stock_min,
                     p.satuan, k.nama_kategori, d.nama_distributor, d.no_hp AS dist_no_hp
              FROM product p
-             JOIN kategori_product k ON p.kategori_id   = k.id
+             JOIN kategori_product k ON p.kategori_id    = k.id
              JOIN distributors     d ON p.distributor_id = d.id
              WHERE p.stock <= p.stock_min
              ORDER BY p.stock ASC"
@@ -103,10 +102,12 @@ class Product
                  stock, stock_min, harga_beli, harga_jual, satuan, deskripsi, createdAt, updatedAt)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
         );
+        // FIX: bind string yang benar — spasi dihapus
         $stmt->bind_param(
-            'ssiiiiddss ss',
+            'ssiiiiddssss',
             $kode_barang, $nama_barang, $kategori_id, $distributor_id,
-            $stock, $stock_min, $harga_beli, $harga_jual, $satuan, $deskripsi, $now, $now
+            $stock, $stock_min, $harga_beli, $harga_jual,
+            $satuan, $deskripsi, $now, $now
         );
         return $stmt->execute();
     }
@@ -127,14 +128,17 @@ class Product
         $now  = date('Y-m-d H:i:s');
         $stmt = $this->db->prepare(
             "UPDATE product
-             SET kode_barang=?, nama_barang=?, kategori_id=?, distributor_id=?,
-                 stock=?, stock_min=?, harga_beli=?, harga_jual=?, satuan=?, deskripsi=?, updatedAt=?
-             WHERE id=?"
+             SET kode_barang = ?, nama_barang = ?, kategori_id = ?, distributor_id = ?,
+                 stock = ?, stock_min = ?, harga_beli = ?, harga_jual = ?,
+                 satuan = ?, deskripsi = ?, updatedAt = ?
+             WHERE id = ?"
         );
+        // FIX: bind string yang benar
         $stmt->bind_param(
-            'ssiiiiddssi',
+            'ssiiiiddsssi',
             $kode_barang, $nama_barang, $kategori_id, $distributor_id,
-            $stock, $stock_min, $harga_beli, $harga_jual, $satuan, $deskripsi, $now, $id
+            $stock, $stock_min, $harga_beli, $harga_jual,
+            $satuan, $deskripsi, $now, $id
         );
         return $stmt->execute();
     }
@@ -143,7 +147,7 @@ class Product
     {
         $now  = date('Y-m-d H:i:s');
         $stmt = $this->db->prepare(
-            "UPDATE product SET stock = stock + ?, updatedAt=? WHERE id=?"
+            "UPDATE product SET stock = stock + ?, updatedAt = ? WHERE id = ?"
         );
         $stmt->bind_param('isi', $qty, $now, $id);
         return $stmt->execute();
@@ -153,7 +157,7 @@ class Product
     {
         $now  = date('Y-m-d H:i:s');
         $stmt = $this->db->prepare(
-            "UPDATE product SET stock = stock - ?, updatedAt=? WHERE id=?"
+            "UPDATE product SET stock = stock - ?, updatedAt = ? WHERE id = ?"
         );
         $stmt->bind_param('isi', $qty, $now, $id);
         return $stmt->execute();

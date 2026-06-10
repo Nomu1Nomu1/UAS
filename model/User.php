@@ -51,14 +51,14 @@ class User
         $now  = date('Y-m-d H:i:s');
 
         $stmt = $this->db->prepare(
-            "INSERT INTO users (username, password, nama, role, email, no_hp, is_active, createdAt, updatedAt)
+            "INSERT INTO users
+                (username, password, nama, role, email, no_hp, is_active, createdAt, updatedAt)
              VALUES (?, ?, ?, ?, ?, ?, 'Y', ?, ?)"
         );
         $stmt->bind_param(
             'ssssssss',
             $username, $hash, $nama, $role, $email, $no_hp, $now, $now
         );
-
         return $stmt->execute();
     }
 
@@ -76,15 +76,15 @@ class User
             $hash = password_hash($password, PASSWORD_DEFAULT);
             $stmt = $this->db->prepare(
                 "UPDATE users
-                 SET nama=?, role=?, email=?, no_hp=?, password=?, updatedAt=?
-                 WHERE user_id=?"
+                 SET nama = ?, role = ?, email = ?, no_hp = ?, password = ?, updatedAt = ?
+                 WHERE user_id = ?"
             );
             $stmt->bind_param('ssssssi', $nama, $role, $email, $no_hp, $hash, $now, $id);
         } else {
             $stmt = $this->db->prepare(
                 "UPDATE users
-                 SET nama=?, role=?, email=?, no_hp=?, updatedAt=?
-                 WHERE user_id=?"
+                 SET nama = ?, role = ?, email = ?, no_hp = ?, updatedAt = ?
+                 WHERE user_id = ?"
             );
             $stmt->bind_param('sssssi', $nama, $role, $email, $no_hp, $now, $id);
         }
@@ -105,10 +105,9 @@ class User
         $now       = date('Y-m-d H:i:s');
 
         $stmt = $this->db->prepare(
-            "UPDATE users SET is_active=?, updatedAt=? WHERE user_id=?"
+            "UPDATE users SET is_active = ?, updatedAt = ? WHERE user_id = ?"
         );
         $stmt->bind_param('ssi', $newStatus, $now, $id);
-
         return $stmt->execute();
     }
 

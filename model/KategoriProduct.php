@@ -49,22 +49,9 @@ class KategoriProduct
     public function update(int $id, string $nama_kategori, ?string $deskripsi = null): bool
     {
         $stmt = $this->db->prepare(
-            "UPDATE kategori_product SET nama_kategori=?, deskripsi=? WHERE id=?"
+            "UPDATE kategori_product SET nama_kategori = ?, deskripsi = ? WHERE id = ?"
         );
         $stmt->bind_param('ssi', $nama_kategori, $deskripsi, $id);
-        return $stmt->execute();
-    }
-
-    public function delete(int $id): bool
-    {
-        $used = (int) $this->db->query(
-            "SELECT COUNT(*) AS c FROM product WHERE kategori_id = $id"
-        )->fetch_assoc()['c'];
-
-        if ($used > 0) return false;
-
-        $stmt = $this->db->prepare("DELETE FROM kategori_product WHERE id = ?");
-        $stmt->bind_param('i', $id);
         return $stmt->execute();
     }
 
@@ -76,5 +63,14 @@ class KategoriProduct
         $stmt->bind_param('i', $id);
         $stmt->execute();
         return (int) $stmt->get_result()->fetch_assoc()['c'] > 0;
+    }
+
+    public function delete(int $id): bool
+    {
+        if ($this->isUsed($id)) return false;
+
+        $stmt = $this->db->prepare("DELETE FROM kategori_product WHERE id = ?");
+        $stmt->bind_param('i', $id);
+        return $stmt->execute();
     }
 }

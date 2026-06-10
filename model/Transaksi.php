@@ -12,23 +12,23 @@ class Transaksi
 
     public function getAll(string $search = '', string $tanggal = ''): array
     {
-        $sql = "SELECT t.*, u.nama AS kasir
-                FROM transaksi t
-                JOIN users u ON t.user_id = u.user_id
-                WHERE 1=1";
+        $sql    = "SELECT t.*, u.nama AS kasir
+                   FROM transaksi t
+                   JOIN users u ON t.user_id = u.user_id
+                   WHERE 1=1";
         $params = [];
         $types  = '';
 
         if ($search !== '') {
-            $like    = "%$search%";
-            $sql    .= " AND (t.no_trx LIKE ? OR u.nama LIKE ?)";
+            $like     = "%{$search}%";
+            $sql     .= " AND (t.no_trx LIKE ? OR u.nama LIKE ?)";
             $params[] = $like;
             $params[] = $like;
             $types   .= 'ss';
         }
 
         if ($tanggal !== '') {
-            $sql    .= " AND DATE(t.tanggal_transaksi) = ?";
+            $sql     .= " AND DATE(t.tanggal_transaksi) = ?";
             $params[] = $tanggal;
             $types   .= 's';
         }
@@ -73,11 +73,11 @@ class Transaksi
     }
 
     public function create(
-        int    $user_id,
-        array  $items,
-        float  $bayar,
+        int     $user_id,
+        array   $items,
+        float   $bayar,
         ?string $keterangan = null,
-        string &$errorMsg   = ''
+        string  &$errorMsg  = ''
     ): int|false {
         if (empty($items)) {
             $errorMsg = 'Tidak ada item yang dipilih.';
@@ -87,8 +87,8 @@ class Transaksi
         $total_harga = 0;
 
         foreach ($items as $item) {
-            $produk_id = (int)   ($item['produk_id']    ?? 0);
-            $qty       = (int)   ($item['qty']          ?? 0);
+            $produk_id = (int) ($item['produk_id'] ?? 0);
+            $qty       = (int) ($item['qty']       ?? 0);
 
             if ($produk_id <= 0 || $qty <= 0) continue;
 
@@ -100,8 +100,8 @@ class Transaksi
             $prod = $stmt->get_result()->fetch_assoc();
 
             if (!$prod || (int) $prod['stock'] < $qty) {
-                $nama      = $prod['nama_barang'] ?? "ID $produk_id";
-                $errorMsg  = "Stok produk \"$nama\" tidak mencukupi.";
+                $nama     = $prod['nama_barang'] ?? "ID {$produk_id}";
+                $errorMsg = "Stok produk \"{$nama}\" tidak mencukupi.";
                 return false;
             }
 
@@ -109,9 +109,14 @@ class Transaksi
             $total_harga += $qty * $harga;
         }
 
-        $kembalian   = $bayar - $total_harga;
-        $now         = date('Y-m-d H:i:s');
-        $no_trx      = 'TRX-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -5));
+        if ($bayar < $total_harga) {
+            $errorMsg = 'Jumlah bayar kurang dari total harga.';
+            return false;
+        }
+
+        $kembalian = $bayar - $total_harga;
+        $now       = date('Y-m-d H:i:s');
+        $no_trx    = 'TRX-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -5));
 
         $this->db->begin_transaction();
         try {
@@ -120,8 +125,9 @@ class Transaksi
                     (no_trx, user_id, tanggal_transaksi, total_harga, bayar, kembalian, status, keterangan)
                  VALUES (?, ?, ?, ?, ?, ?, 'Selesai', ?)"
             );
+            // FIX: bind string yang benar — 7 params: s,i,s,d,d,d,s
             $stmt->bind_param(
-                'sisddd s',
+                'sisddds',
                 $no_trx, $user_id, $now, $total_harga, $bayar, $kembalian, $keterangan
             );
             $stmt->execute();
@@ -143,7 +149,7 @@ class Transaksi
                 $stmt2->execute();
 
                 $stmt3 = $this->db->prepare(
-                    "UPDATE product SET stock = stock - ?, updatedAt=? WHERE id=?"
+                    "UPDATE product SET stock = stock - ?, updatedAt = ? WHERE id = ?"
                 );
                 $stmt3->bind_param('isi', $qty, $now, $produk_id);
                 $stmt3->execute();
