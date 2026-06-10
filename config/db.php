@@ -2,8 +2,9 @@
 
 session_start();
 
+define('BASE_URL', '/UAS');
 define('DB_HOST', 'localhost');
-define('DB_user', 'root');
+define('DB_USER', 'root');
 define('DB_PASS', '');
 define('DB_NAME', 'inventory');
 
