@@ -3,32 +3,35 @@ require_once __DIR__ . '/../config/db.php';
 
 class ProductController
 {
-
-    public function index()
+    public function index(): void
     {
-        if (!is_logged_in())
-            redirect('auth/login');
+        if (!is_logged_in()) redirect('auth/login');
 
-        $db = getDB();
+        $db     = getDB();
         $search = trim($_GET['search'] ?? '');
-        $katId = (int) ($_GET['kategori_id'] ?? 0);
+        $katId  = (int) ($_GET['kategori_id'] ?? 0);
 
-        $sql = "SELECT p.*, k.nama_kategori, d.nama_distributor FROM product p JOIN kategori_product k ON p.kategori_id  = k.id JOIN distributorsd ON p.distributor_id = d.id WHERE 1=1";
+        // FIX: missing space between "distributors" and alias "d"
+        $sql    = "SELECT p.*, k.nama_kategori, d.nama_distributor
+                   FROM product p
+                   JOIN kategori_product k ON p.kategori_id    = k.id
+                   JOIN distributors     d ON p.distributor_id = d.id
+                   WHERE 1=1";
         $params = [];
-        $types = '';
+        $types  = '';
 
         if ($search !== '') {
-            $like = "%$search%";
-            $sql .= " AND (p.nama_barang LIKE ? OR p.kode_barang LIKE ?)";
+            $like     = "%{$search}%";
+            $sql     .= " AND (p.nama_barang LIKE ? OR p.kode_barang LIKE ?)";
             $params[] = $like;
             $params[] = $like;
-            $types .= 'ss';
+            $types   .= 'ss';
         }
 
         if ($katId > 0) {
-            $sql .= " AND p.kategori_id = ?";
+            $sql     .= " AND p.kategori_id = ?";
             $params[] = $katId;
-            $types .= 'i';
+            $types   .= 'i';
         }
 
         $sql .= " ORDER BY p.id DESC";
@@ -42,22 +45,28 @@ class ProductController
             $products = $db->query($sql)->fetch_all(MYSQLI_ASSOC);
         }
 
-        $kategoris = $db->query("SELECT * FROM kategori_product ORDER BY nama_kategori")->fetch_all(MYSQLI_ASSOC);
+        $kategoris = $db->query(
+            "SELECT * FROM kategori_product ORDER BY nama_kategori"
+        )->fetch_all(MYSQLI_ASSOC);
 
         $pageTitle = 'Data Produk';
         require_once __DIR__ . '/../view/produk/index.php';
     }
 
-    public function show()
+    public function show(): void
     {
-        if (!is_logged_in())
-            redirect('auth/login');
+        if (!is_logged_in()) redirect('auth/login');
 
-        $id = (int) ($_GET['id'] ?? 0);
-        $db = getDB();
+        $id   = (int) ($_GET['id'] ?? 0);
+        $db   = getDB();
 
         $stmt = $db->prepare(
-            "SELECT p.*, k.nama_kategori, d.nama_distributor FROM product p JOIN kategori_product k ON p.kategori_id = k.id JOIN distributors d ON p.distributor_id = d.id WHERE p.id = ?");
+            "SELECT p.*, k.nama_kategori, d.nama_distributor
+             FROM product p
+             JOIN kategori_product k ON p.kategori_id    = k.id
+             JOIN distributors     d ON p.distributor_id = d.id
+             WHERE p.id = ?"
+        );
         $stmt->bind_param('i', $id);
         $stmt->execute();
         $product = $stmt->get_result()->fetch_assoc();
@@ -68,48 +77,47 @@ class ProductController
         require_once __DIR__ . '/../view/produk/show.php';
     }
 
-    public function create()
+    public function create(): void
     {
         if (!is_logged_in()) redirect('auth/login');
         allow_roles(['owner', 'admin']);
 
-        $db = getDB();
-        $kategoris = $db->query("SELECT * FROM kategori_product ORDER BY nama_kategori")->fetch_all(MYSQLI_ASSOC);
-        $distribs = $db->query("SELECT * FROM distributors ORDER BY nama_distributor")->fetch_all(MYSQLI_ASSOC);
+        $db        = getDB();
+        $kategoris = $db->query(
+            "SELECT * FROM kategori_product ORDER BY nama_kategori"
+        )->fetch_all(MYSQLI_ASSOC);
+        $distribs  = $db->query(
+            "SELECT * FROM distributors ORDER BY nama_distributor"
+        )->fetch_all(MYSQLI_ASSOC);
         $error = '';
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $kode = trim($_POST['kode_barang'] ?? '');
-            $nama = trim($_POST['nama_barang'] ?? '');
-            $kategori_id = (int) ($_POST['kategori_id'] ?? 0);
-            $dist_id = (int) ($_POST['distributor_id'] ?? 0);
-            $stock = (int) ($_POST['stock'] ?? 0);
-            $stock_min = (int) ($_POST['stock_min'] ?? 0);
-            $harga_beli = (float) ($_POST['harga_beli'] ?? 0);
-            $harga_jual = (float) ($_POST['harga_jual'] ?? 0);
-            $satuan = trim($_POST['satuan'] ?? '');
-            $deskripsi = trim($_POST['deskripsi'] ?? '') ?: null;
+            $kode       = trim($_POST['kode_barang']    ?? '');
+            $nama       = trim($_POST['nama_barang']    ?? '');
+            $kategori_id = (int)   ($_POST['kategori_id']    ?? 0);
+            $dist_id    = (int)   ($_POST['distributor_id']  ?? 0);
+            $stock      = (int)   ($_POST['stock']           ?? 0);
+            $stock_min  = (int)   ($_POST['stock_min']       ?? 0);
+            $harga_beli = (float) ($_POST['harga_beli']      ?? 0);
+            $harga_jual = (float) ($_POST['harga_jual']      ?? 0);
+            $satuan     = trim($_POST['satuan']              ?? '');
+            $deskripsi  = trim($_POST['deskripsi']           ?? '') ?: null;
 
             if (empty($kode) || empty($nama) || !$kategori_id || !$dist_id || empty($satuan)) {
                 $error = 'Semua field wajib diisi.';
             } else {
-                $now = date('Y-m-d H:i:s');
+                $now  = date('Y-m-d H:i:s');
                 $stmt = $db->prepare(
-                    "INSERT INTO product (kode_barang, nama_barang, kategori_id, distributor_id, stock, stock_min, harga_beli, harga_jual, satuan, deskripsi, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                    "INSERT INTO product
+                        (kode_barang, nama_barang, kategori_id, distributor_id,
+                         stock, stock_min, harga_beli, harga_jual, satuan, deskripsi, createdAt, updatedAt)
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+                );
                 $stmt->bind_param(
                     'ssiiiiddssss',
-                    $kode,
-                    $nama,
-                    $kategori_id,
-                    $dist_id,
-                    $stock,
-                    $stock_min,
-                    $harga_beli,
-                    $harga_jual,
-                    $satuan,
-                    $deskripsi,
-                    $now,
-                    $now
+                    $kode, $nama, $kategori_id, $dist_id,
+                    $stock, $stock_min, $harga_beli, $harga_jual,
+                    $satuan, $deskripsi, $now, $now
                 );
                 if ($stmt->execute()) {
                     redirect('product/index');
@@ -123,7 +131,7 @@ class ProductController
         require_once __DIR__ . '/../view/produk/create.php';
     }
 
-    public function edit()
+    public function edit(): void
     {
         if (!is_logged_in()) redirect('auth/login');
         allow_roles(['owner', 'admin']);
@@ -136,45 +144,44 @@ class ProductController
         $stmt->execute();
         $product = $stmt->get_result()->fetch_assoc();
 
-        if (!$product)
-            redirect('product/index');
+        if (!$product) redirect('product/index');
 
-        $kategoris = $db->query("SELECT * FROM kategori_product ORDER BY nama_kategori")->fetch_all(MYSQLI_ASSOC);
-        $distribs = $db->query("SELECT * FROM distributors ORDER BY nama_distributor")->fetch_all(MYSQLI_ASSOC);
+        $kategoris = $db->query(
+            "SELECT * FROM kategori_product ORDER BY nama_kategori"
+        )->fetch_all(MYSQLI_ASSOC);
+        $distribs  = $db->query(
+            "SELECT * FROM distributors ORDER BY nama_distributor"
+        )->fetch_all(MYSQLI_ASSOC);
         $error = '';
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $kode = trim($_POST['kode_barang'] ?? '');
-            $nama = trim($_POST['nama_barang'] ?? '');
-            $kategori_id = (int) ($_POST['kategori_id'] ?? 0);
-            $dist_id = (int) ($_POST['distributor_id'] ?? 0);
-            $stock = (int) ($_POST['stock'] ?? 0);
-            $stock_min = (int) ($_POST['stock_min'] ?? 0);
-            $harga_beli = (float) ($_POST['harga_beli'] ?? 0);
-            $harga_jual = (float) ($_POST['harga_jual'] ?? 0);
-            $satuan = trim($_POST['satuan'] ?? '');
-            $deskripsi = trim($_POST['deskripsi'] ?? '') ?: null;
+            $kode       = trim($_POST['kode_barang']   ?? '');
+            $nama       = trim($_POST['nama_barang']   ?? '');
+            $kategori_id = (int)   ($_POST['kategori_id']   ?? 0);
+            $dist_id    = (int)   ($_POST['distributor_id'] ?? 0);
+            $stock      = (int)   ($_POST['stock']          ?? 0);
+            $stock_min  = (int)   ($_POST['stock_min']      ?? 0);
+            $harga_beli = (float) ($_POST['harga_beli']     ?? 0);
+            $harga_jual = (float) ($_POST['harga_jual']     ?? 0);
+            $satuan     = trim($_POST['satuan']             ?? '');
+            $deskripsi  = trim($_POST['deskripsi']          ?? '') ?: null;
 
             if (empty($kode) || empty($nama) || !$kategori_id || !$dist_id || empty($satuan)) {
                 $error = 'Semua field wajib diisi.';
             } else {
-                $now = date('Y-m-d H:i:s');
+                $now  = date('Y-m-d H:i:s');
                 $stmt = $db->prepare(
-                    "UPDATE product SET kode_barang=?, nama_barang=?, kategori_id=?, distributor_id=?, stock=?, stock_min=?, harga_beli=?, harga_jual=?, satuan=?, deskripsi=?, updatedAt=? WHERE id=?");
+                    "UPDATE product
+                     SET kode_barang = ?, nama_barang = ?, kategori_id = ?, distributor_id = ?,
+                         stock = ?, stock_min = ?, harga_beli = ?, harga_jual = ?,
+                         satuan = ?, deskripsi = ?, updatedAt = ?
+                     WHERE id = ?"
+                );
                 $stmt->bind_param(
                     'ssiiiiddsssi',
-                    $kode,
-                    $nama,
-                    $kategori_id,
-                    $dist_id,
-                    $stock,
-                    $stock_min,
-                    $harga_beli,
-                    $harga_jual,
-                    $satuan,
-                    $deskripsi,
-                    $now,
-                    $id
+                    $kode, $nama, $kategori_id, $dist_id,
+                    $stock, $stock_min, $harga_beli, $harga_jual,
+                    $satuan, $deskripsi, $now, $id
                 );
                 if ($stmt->execute()) {
                     redirect('product/index');
@@ -188,7 +195,7 @@ class ProductController
         require_once __DIR__ . '/../view/produk/edit.php';
     }
 
-    public function delete()
+    public function delete(): void
     {
         if (!is_logged_in()) redirect('auth/login');
         allow_roles(['owner', 'admin']);
@@ -196,7 +203,11 @@ class ProductController
         $id = (int) ($_GET['id'] ?? 0);
         $db = getDB();
 
-        $used = $db->query("SELECT COUNT(*) AS c FROM detail_transaksi WHERE produk_id = $id")->fetch_assoc()['c'];
+        // FIX: gunakan prepared statement
+        $stmt = $db->prepare("SELECT COUNT(*) AS c FROM detail_transaksi WHERE produk_id = ?");
+        $stmt->bind_param('i', $id);
+        $stmt->execute();
+        $used = (int) $stmt->get_result()->fetch_assoc()['c'];
 
         if ($used > 0) {
             $_SESSION['flash'] = 'Produk tidak dapat dihapus karena sudah ada di transaksi.';

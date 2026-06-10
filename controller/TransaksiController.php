@@ -1,13 +1,14 @@
 <?php
 require_once __DIR__ . '/../config/db.php';
 
-class TransaksiController {
-
-    public function index() {
+class TransaksiController
+{
+    public function index(): void
+    {
         if (!is_logged_in()) redirect('auth/login');
 
         $db      = getDB();
-        $search  = trim($_GET['search'] ?? '');
+        $search  = trim($_GET['search']  ?? '');
         $tanggal = trim($_GET['tanggal'] ?? '');
 
         $sql    = "SELECT t.*, u.nama AS kasir
@@ -18,15 +19,15 @@ class TransaksiController {
         $types  = '';
 
         if ($search !== '') {
-            $like    = "%$search%";
-            $sql    .= " AND (t.no_trx LIKE ? OR u.nama LIKE ?)";
+            $like     = "%{$search}%";
+            $sql     .= " AND (t.no_trx LIKE ? OR u.nama LIKE ?)";
             $params[] = $like;
             $params[] = $like;
             $types   .= 'ss';
         }
 
         if ($tanggal !== '') {
-            $sql    .= " AND DATE(t.tanggal_transaksi) = ?";
+            $sql     .= " AND DATE(t.tanggal_transaksi) = ?";
             $params[] = $tanggal;
             $types   .= 's';
         }
@@ -46,7 +47,8 @@ class TransaksiController {
         require_once __DIR__ . '/../view/transaksi/index.php';
     }
 
-    public function kasir() {
+    public function kasir(): void
+    {
         if (!is_logged_in()) redirect('auth/login');
 
         $db       = getDB();
@@ -59,15 +61,15 @@ class TransaksiController {
         require_once __DIR__ . '/../view/transaksi/kasir.php';
     }
 
-    public function create() {
+    public function create(): void
+    {
         if (!is_logged_in()) redirect('auth/login');
-
-        $db = getDB();
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') redirect('transaksi/kasir');
 
-        $items     = $_POST['items']  ?? [];
-        $bayar     = (float)($_POST['bayar'] ?? 0);
+        $db         = getDB();
+        $items      = $_POST['items']      ?? [];
+        $bayar      = (float) ($_POST['bayar'] ?? 0);
         $keterangan = trim($_POST['keterangan'] ?? '') ?: null;
 
         if (empty($items)) {
@@ -82,19 +84,19 @@ class TransaksiController {
 
         // Validasi stok dan hitung total
         foreach ($items as $item) {
-            $produk_id = (int)($item['produk_id'] ?? 0);
-            $qty       = (int)($item['qty']       ?? 0);
-            $harga     = (float)($item['harga_satuan'] ?? 0);
+            $produk_id = (int)   ($item['produk_id']    ?? 0);
+            $qty       = (int)   ($item['qty']          ?? 0);
+            $harga     = (float) ($item['harga_satuan'] ?? 0);
 
             if ($produk_id <= 0 || $qty <= 0) continue;
 
-            $stmt = $db->prepare("SELECT stock, harga_jual FROM product WHERE id = ?");
+            $stmt = $db->prepare("SELECT stock FROM product WHERE id = ?");
             $stmt->bind_param('i', $produk_id);
             $stmt->execute();
             $prod = $stmt->get_result()->fetch_assoc();
 
             if (!$prod || $prod['stock'] < $qty) {
-                $_SESSION['flash'] = "Stok produk tidak mencukupi.";
+                $_SESSION['flash'] = 'Stok produk tidak mencukupi.';
                 redirect('transaksi/kasir');
             }
 
@@ -112,17 +114,17 @@ class TransaksiController {
         try {
             $stmt = $db->prepare(
                 "INSERT INTO transaksi
-                 (no_trx, user_id, tanggal_transaksi, total_harga, bayar, kembalian, status, keterangan)
+                    (no_trx, user_id, tanggal_transaksi, total_harga, bayar, kembalian, status, keterangan)
                  VALUES (?, ?, ?, ?, ?, ?, 'Selesai', ?)"
             );
-            $stmt->bind_param('sisdddss', $no_trx, $user_id, $now, $total_harga, $bayar, $kembalian, $keterangan);
+            $stmt->bind_param('sisddds', $no_trx, $user_id, $now, $total_harga, $bayar, $kembalian, $keterangan);
             $stmt->execute();
             $trx_id = $db->insert_id;
 
             foreach ($items as $item) {
-                $produk_id = (int)($item['produk_id']    ?? 0);
-                $qty       = (int)($item['qty']          ?? 0);
-                $harga_sat = (float)($item['harga_satuan'] ?? 0);
+                $produk_id = (int)   ($item['produk_id']    ?? 0);
+                $qty       = (int)   ($item['qty']          ?? 0);
+                $harga_sat = (float) ($item['harga_satuan'] ?? 0);
                 $subtotal  = $qty * $harga_sat;
 
                 if ($produk_id <= 0 || $qty <= 0) continue;
@@ -134,14 +136,13 @@ class TransaksiController {
                 $stmt2->bind_param('iiidd', $trx_id, $produk_id, $qty, $harga_sat, $subtotal);
                 $stmt2->execute();
 
-                // Kurangi stok
                 $stmt3 = $db->prepare("UPDATE product SET stock = stock - ? WHERE id = ?");
                 $stmt3->bind_param('ii', $qty, $produk_id);
                 $stmt3->execute();
             }
 
             $db->commit();
-            $_SESSION['flash']    = "Transaksi $no_trx berhasil disimpan. Kembalian: Rp " . number_format($kembalian, 0, ',', '.');
+            $_SESSION['flash']    = "Transaksi {$no_trx} berhasil. Kembalian: " . format_rupiah($kembalian);
             $_SESSION['last_trx'] = $trx_id;
             redirect('transaksi/index');
         } catch (Exception $e) {
@@ -151,11 +152,12 @@ class TransaksiController {
         }
     }
 
-    public function batal() {
+    public function batal(): void
+    {
         if (!is_logged_in()) redirect('auth/login');
         allow_roles(['owner', 'admin']);
 
-        $id = (int)($_GET['id'] ?? 0);
+        $id = (int) ($_GET['id'] ?? 0);
         $db = getDB();
 
         $stmt = $db->prepare("SELECT * FROM transaksi WHERE id = ? AND status = 'Selesai'");
@@ -165,21 +167,24 @@ class TransaksiController {
 
         if (!$trx) redirect('transaksi/index');
 
-        $details = $db->query(
-            "SELECT produk_id, qty FROM detail_transaksi WHERE id_trx = $id"
-        )->fetch_all(MYSQLI_ASSOC);
+        // FIX: gunakan prepared statement
+        $stmt2 = $db->prepare(
+            "SELECT produk_id, qty FROM detail_transaksi WHERE id_trx = ?"
+        );
+        $stmt2->bind_param('i', $id);
+        $stmt2->execute();
+        $details = $stmt2->get_result()->fetch_all(MYSQLI_ASSOC);
 
         $db->begin_transaction();
         try {
-            $stmt = $db->prepare("UPDATE transaksi SET status='Batal' WHERE id=?");
-            $stmt->bind_param('i', $id);
-            $stmt->execute();
+            $stmt3 = $db->prepare("UPDATE transaksi SET status = 'Batal' WHERE id = ?");
+            $stmt3->bind_param('i', $id);
+            $stmt3->execute();
 
-            // Kembalikan stok
             foreach ($details as $d) {
-                $stmt2 = $db->prepare("UPDATE product SET stock = stock + ? WHERE id = ?");
-                $stmt2->bind_param('ii', $d['qty'], $d['produk_id']);
-                $stmt2->execute();
+                $stmt4 = $db->prepare("UPDATE product SET stock = stock + ? WHERE id = ?");
+                $stmt4->bind_param('ii', $d['qty'], $d['produk_id']);
+                $stmt4->execute();
             }
 
             $db->commit();
@@ -192,15 +197,17 @@ class TransaksiController {
         redirect('transaksi/index');
     }
 
-    public function detail() {
+    public function detail(): void
+    {
         if (!is_logged_in()) redirect('auth/login');
 
-        $id = (int)($_GET['id'] ?? 0);
+        $id = (int) ($_GET['id'] ?? 0);
         $db = getDB();
 
         $stmt = $db->prepare(
             "SELECT t.*, u.nama AS kasir
-             FROM transaksi t JOIN users u ON t.user_id = u.user_id
+             FROM transaksi t
+             JOIN users u ON t.user_id = u.user_id
              WHERE t.id = ?"
         );
         $stmt->bind_param('i', $id);
@@ -211,7 +218,8 @@ class TransaksiController {
 
         $stmt2 = $db->prepare(
             "SELECT dt.*, p.nama_barang, p.kode_barang, p.satuan
-             FROM detail_transaksi dt JOIN product p ON dt.produk_id = p.id
+             FROM detail_transaksi dt
+             JOIN product p ON dt.produk_id = p.id
              WHERE dt.id_trx = ?"
         );
         $stmt2->bind_param('i', $id);

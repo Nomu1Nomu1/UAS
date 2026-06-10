@@ -13,7 +13,7 @@ class Distributor
     public function getAll(string $search = ''): array
     {
         if ($search !== '') {
-            $like = "%$search%";
+            $like = "%{$search}%";
             $stmt = $this->db->prepare(
                 "SELECT * FROM distributors
                  WHERE nama_distributor LIKE ? OR alamat LIKE ? OR no_hp LIKE ?
@@ -47,7 +47,8 @@ class Distributor
     ): bool {
         $now  = date('Y-m-d H:i:s');
         $stmt = $this->db->prepare(
-            "INSERT INTO distributors (nama_distributor, alamat, no_hp, email, keterangan, createdAt, updatedAt)
+            "INSERT INTO distributors
+                (nama_distributor, alamat, no_hp, email, keterangan, createdAt, updatedAt)
              VALUES (?, ?, ?, ?, ?, ?, ?)"
         );
         $stmt->bind_param(
@@ -68,8 +69,8 @@ class Distributor
         $now  = date('Y-m-d H:i:s');
         $stmt = $this->db->prepare(
             "UPDATE distributors
-             SET nama_distributor=?, alamat=?, no_hp=?, email=?, keterangan=?, updatedAt=?
-             WHERE id=?"
+             SET nama_distributor = ?, alamat = ?, no_hp = ?, email = ?, keterangan = ?, updatedAt = ?
+             WHERE id = ?"
         );
         $stmt->bind_param(
             'ssssssi',
