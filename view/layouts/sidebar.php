@@ -1,3 +1,7 @@
+<?php
+$currentFolder = basename(dirname($_SERVER['PHP_SELF']));
+?>
+
 <aside class="sidebar">
 
     <div class="sidebar-logo">
@@ -7,49 +11,49 @@
     <ul class="sidebar-menu">
 
         <li>
-            <a href="<?= BASE_URL ?>/dashboard/index">
+            <a href="../dashboard/index.php" class="<?= ($currentFolder == 'dashboard') ? 'active' : '' ?>">
                 <i class="bi bi-grid"></i>
                 Dashboard
             </a>
         </li>
 
         <li>
-            <a href="<?= BASE_URL ?>/product/index">
+            <a href="../produk/index.php" class="<?= ($currentFolder == 'produk') ? 'active' : '' ?>">
                 <i class="bi bi-box"></i>
                 Produk
             </a>
         </li>
 
         <li>
-            <a href="<?= BASE_URL ?>/kategori/index" class="active">
+            <a href="../kategori/index.php" class="<?= ($currentFolder == 'kategori') ? 'active' : '' ?>">
                 <i class="bi bi-tag"></i>
                 Kategori
             </a>
         </li>
 
         <li>
-            <a href="<?= BASE_URL ?>/distributor/index">
+            <a href="../distributor/index.php" class="<?= ($currentFolder == 'distributor') ? 'active' : '' ?>">
                 <i class="bi bi-truck"></i>
                 Distributor
             </a>
         </li>
 
         <li>
-            <a href="<?= BASE_URL ?>/pengadaan/index">
+            <a href="../pengadaan/index.php" class="<?= ($currentFolder == 'pengadaan') ? 'active' : '' ?>">
                 <i class="bi bi-cart"></i>
                 Pengadaan
             </a>
         </li>
 
         <li>
-            <a href="<?= BASE_URL ?>/transaksi/index">
+            <a href="../transaksi/index.php" class="<?= ($currentFolder == 'transaksi') ? 'active' : '' ?>">
                 <i class="bi bi-credit-card"></i>
                 Transaksi
             </a>
         </li>
 
         <li>
-            <a href="<?= BASE_URL ?>/laporan/index">
+            <a href="../laporan/index.php" class="<?= ($currentFolder == 'laporan') ? 'active' : '' ?>">
                 <i class="bi bi-file-earmark-text"></i>
                 Laporan
             </a>
@@ -71,7 +75,7 @@
 
     </div>
 
-    <a href="<?= BASE_URL ?>/auth/logout" class="logout-btn">
+    <a href="../auth/logout" class="logout-btn">
         <i class="bi bi-box-arrow-right"></i>
         Logout
     </a>

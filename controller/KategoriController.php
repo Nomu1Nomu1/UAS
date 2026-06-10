@@ -110,4 +110,5 @@ class KategoriController
 
         redirect('kategori/index');
     }
+
 }

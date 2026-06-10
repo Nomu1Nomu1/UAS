@@ -2,7 +2,7 @@
 
 session_start();
 
-define('BASE_URL', '/UAS');
+// define('BASE_URL', '/UAS');
 define('DB_HOST',  'localhost');
 define('DB_USER',  'root');
 define('DB_PASS',  '');
@@ -20,7 +20,7 @@ function getDB(): mysqli
 
 function redirect(string $path): void
 {
-    $base = rtrim(BASE_URL, '/');
+    $base = rtrim('/');
     header("Location: {$base}/{$path}");
     exit;
 }
