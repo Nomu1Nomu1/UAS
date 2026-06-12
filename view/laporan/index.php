@@ -1,142 +1,159 @@
-<?php ob_start(); ?>
+<?php
+ob_start();
+?>
 
-<div class="report-header">
+<div class="container-fluid">
 
-    <div>
-        <h1 class="page-title">Laporan</h1>
-        <p class="page-subtitle">
-            Analisis penjualan dan inventaris
-        </p>
-    </div>
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold mb-1">Laporan Penjualan</h3>
+            <p class="text-muted mb-0">
+                Ringkasan penjualan dan produk terlaris
+            </p>
+        </div>
 
-    <button class="btn btn-success">
-        <i class="bi bi-download"></i>
-        Export PDF
-    </button>
-
-</div>
-
-<div class="report-filter card-section">
-
-    <div class="d-flex gap-3 align-items-center">
-
-        <i class="bi bi-calendar3"></i>
-
-        <select class="form-select report-select">
-            <option>Bulan Ini</option>
-            <option>3 Bulan</option>
-            <option>6 Bulan</option>
-            <option>1 Tahun</option>
-        </select>
-
-        <button class="btn btn-primary">
-            Terapkan
+        <button onclick="window.print()" class="btn btn-success">
+            <i class="bi bi-printer"></i> Cetak
         </button>
-
     </div>
 
-</div>
+    <!-- Filter -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-3">
 
-<div class="row g-4 mt-2">
+                <input type="hidden" name="url" value="laporan/penjualan">
 
-    <div class="col-md-4">
-
-        <div class="stat-card stat-blue">
-
-            <small>Total Penjualan</small>
-
-            <h2>Rp 329M</h2>
-
-            <span>+18% dari periode lalu</span>
-
-        </div>
-
-    </div>
-
-    <div class="col-md-4">
-
-        <div class="stat-card stat-green">
-
-            <small>Transaksi</small>
-
-            <h2>2,450</h2>
-
-            <span>+12% dari periode lalu</span>
-
-        </div>
-
-    </div>
-
-    <div class="col-md-4">
-
-        <div class="stat-card stat-purple">
-
-            <small>Rata-rata Transaksi</small>
-
-            <h2>Rp 134K</h2>
-
-            <span>+5% dari periode lalu</span>
-
-        </div>
-
-    </div>
-
-</div>
-
-<div class="row g-4 mt-2">
-
-    <div class="col-lg-6">
-
-        <div class="card-section">
-
-            <h3>Grafik Penjualan 6 Bulan Terakhir</h3>
-
-            <div class="report-bar">
-                <span>Jan</span>
-                <div class="bar-track">
-                    <div class="bar-fill" style="width:70%"></div>
-                </div>
-                <strong>Rp 45M</strong>
-            </div>
-
-            <div class="report-bar">
-                <span>Feb</span>
-                <div class="bar-track">
-                    <div class="bar-fill" style="width:80%"></div>
-                </div>
-                <strong>Rp 52M</strong>
-            </div>
-
-            <div class="report-bar">
-                <span>Mar</span>
-                <div class="bar-track">
-                    <div class="bar-fill" style="width:74%"></div>
-                </div>
-                <strong>Rp 48M</strong>
-            </div>
-
-        </div>
-
-    </div>
-
-    <div class="col-lg-6">
-
-        <div class="card-section">
-
-            <h3>Produk Terlaris</h3>
-
-            <div class="top-product">
-
-                <div class="rank">1</div>
-
-                <div>
-                    <strong>Beras Premium 5kg</strong>
-                    <div>Terjual: 1250 unit</div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">
+                        Dari Tanggal
+                    </label>
+                    <input
+                        type="date"
+                        name="dari"
+                        class="form-control"
+                        value="<?= htmlspecialchars($dari) ?>"
+                    >
                 </div>
 
-                <span class="price">
-                    Rp 93.8M
-                </span>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">
+                        Sampai Tanggal
+                    </label>
+                    <input
+                        type="date"
+                        name="sampai"
+                        class="form-control"
+                        value="<?= htmlspecialchars($sampai) ?>"
+                    >
+                </div>
+
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-search"></i>
+                        Tampilkan
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <!-- Summary -->
+    <div class="row mb-4">
+
+        <div class="col-md-6 mb-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="text-muted mb-1">
+                        Total Transaksi
+                    </div>
+
+                    <h2 class="fw-bold text-primary mb-0">
+                        <?= number_format($summary['total_trx'] ?? 0) ?>
+                    </h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="text-muted mb-1">
+                        Total Penjualan
+                    </div>
+
+                    <h2 class="fw-bold text-success mb-0">
+                        Rp <?= number_format($summary['grand_total'] ?? 0, 0, ',', '.') ?>
+                    </h2>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Penjualan Harian -->
+    <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-header bg-white">
+            <h5 class="mb-0 fw-bold">
+                Penjualan Harian
+            </h5>
+        </div>
+
+        <div class="card-body p-0">
+
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle mb-0">
+
+                    <thead class="table-light">
+                        <tr>
+                            <th width="60">No</th>
+                            <th>Tanggal</th>
+                            <th>Jumlah Transaksi</th>
+                            <th>Total Penjualan</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                    <?php if (!empty($penjualanHarian)) : ?>
+
+                        <?php foreach ($penjualanHarian as $i => $row) : ?>
+
+                            <tr>
+                                <td><?= $i + 1 ?></td>
+
+                                <td>
+                                    <?= date('d M Y', strtotime($row['tgl'])) ?>
+                                </td>
+
+                                <td>
+                                    <?= number_format($row['jumlah_trx']) ?>
+                                </td>
+
+                                <td>
+                                    Rp <?= number_format($row['total_penjualan'], 0, ',', '.') ?>
+                                </td>
+                            </tr>
+
+                        <?php endforeach; ?>
+
+                    <?php else : ?>
+
+                        <tr>
+                            <td colspan="4" class="text-center py-4">
+                                Tidak ada data penjualan
+                            </td>
+                        </tr>
+
+                    <?php endif; ?>
+
+                    </tbody>
+
+                </table>
 
             </div>
 
@@ -144,36 +161,82 @@
 
     </div>
 
-</div>
+    <!-- Produk Terlaris -->
+    <div class="card border-0 shadow-sm">
 
-<div class="card-section mt-4">
-
-    <h3>Jenis Laporan</h3>
-
-    <div class="row g-3 mt-2">
-
-        <div class="col-md-4">
-            <div class="report-type">
-                <i class="bi bi-bar-chart-line"></i>
-                <h5>Laporan Penjualan</h5>
-                <p>Detail transaksi penjualan</p>
-            </div>
+        <div class="card-header bg-white">
+            <h5 class="mb-0 fw-bold">
+                10 Produk Terlaris
+            </h5>
         </div>
 
-        <div class="col-md-4">
-            <div class="report-type">
-                <i class="bi bi-graph-up-arrow"></i>
-                <h5>Laporan Stok</h5>
-                <p>Kondisi stok saat ini</p>
-            </div>
-        </div>
+        <div class="card-body p-0">
 
-        <div class="col-md-4">
-            <div class="report-type">
-                <i class="bi bi-truck"></i>
-                <h5>Laporan Pengadaan</h5>
-                <p>Riwayat pembelian barang</p>
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle mb-0">
+
+                    <thead class="table-light">
+                        <tr>
+                            <th width="60">No</th>
+                            <th>Kode Barang</th>
+                            <th>Nama Barang</th>
+                            <th>Kategori</th>
+                            <th>Total Terjual</th>
+                            <th>Total Pendapatan</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                    <?php if (!empty($produkTerlaris)) : ?>
+
+                        <?php foreach ($produkTerlaris as $i => $produk) : ?>
+
+                            <tr>
+
+                                <td><?= $i + 1 ?></td>
+
+                                <td>
+                                    <?= htmlspecialchars($produk['kode_barang']) ?>
+                                </td>
+
+                                <td>
+                                    <?= htmlspecialchars($produk['nama_barang']) ?>
+                                </td>
+
+                                <td>
+                                    <?= htmlspecialchars($produk['nama_kategori']) ?>
+                                </td>
+
+                                <td>
+                                    <?= number_format($produk['total_terjual']) ?>
+                                </td>
+
+                                <td>
+                                    Rp <?= number_format($produk['total_pendapatan'], 0, ',', '.') ?>
+                                </td>
+
+                            </tr>
+
+                        <?php endforeach; ?>
+
+                    <?php else : ?>
+
+                        <tr>
+                            <td colspan="6" class="text-center py-4">
+                                Belum ada data penjualan
+                            </td>
+                        </tr>
+
+                    <?php endif; ?>
+
+                    </tbody>
+
+                </table>
+
             </div>
+
         </div>
 
     </div>
@@ -182,5 +245,8 @@
 
 <?php
 $content = ob_get_clean();
-require_once '../layouts/main.php';
+
+$title = $pageTitle ?? 'Laporan Penjualan';
+
+require __DIR__ . '/../layouts/main.php';
 ?>
