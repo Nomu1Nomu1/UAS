@@ -29,24 +29,14 @@ ob_start();
                     <label class="form-label fw-semibold">
                         Dari Tanggal
                     </label>
-                    <input
-                        type="date"
-                        name="dari"
-                        class="form-control"
-                        value="<?= htmlspecialchars($dari) ?>"
-                    >
+                    <input type="date" name="dari" class="form-control" value="<?= htmlspecialchars($dari) ?>">
                 </div>
 
                 <div class="col-md-4">
                     <label class="form-label fw-semibold">
                         Sampai Tanggal
                     </label>
-                    <input
-                        type="date"
-                        name="sampai"
-                        class="form-control"
-                        value="<?= htmlspecialchars($sampai) ?>"
-                    >
+                    <input type="date" name="sampai" class="form-control" value="<?= htmlspecialchars($sampai) ?>">
                 </div>
 
                 <div class="col-md-4 d-flex align-items-end">
@@ -119,37 +109,37 @@ ob_start();
 
                     <tbody>
 
-                    <?php if (!empty($penjualanHarian)) : ?>
+                        <?php if (!empty($penjualanHarian)): ?>
 
-                        <?php foreach ($penjualanHarian as $i => $row) : ?>
+                            <?php foreach ($penjualanHarian as $i => $row): ?>
+
+                                <tr>
+                                    <td><?= $i + 1 ?></td>
+
+                                    <td>
+                                        <?= date('d M Y', strtotime($row['tgl'])) ?>
+                                    </td>
+
+                                    <td>
+                                        <?= number_format($row['jumlah_trx']) ?>
+                                    </td>
+
+                                    <td>
+                                        Rp <?= number_format($row['total_penjualan'], 0, ',', '.') ?>
+                                    </td>
+                                </tr>
+
+                            <?php endforeach; ?>
+
+                        <?php else: ?>
 
                             <tr>
-                                <td><?= $i + 1 ?></td>
-
-                                <td>
-                                    <?= date('d M Y', strtotime($row['tgl'])) ?>
-                                </td>
-
-                                <td>
-                                    <?= number_format($row['jumlah_trx']) ?>
-                                </td>
-
-                                <td>
-                                    Rp <?= number_format($row['total_penjualan'], 0, ',', '.') ?>
+                                <td colspan="4" class="text-center py-4">
+                                    Tidak ada data penjualan
                                 </td>
                             </tr>
 
-                        <?php endforeach; ?>
-
-                    <?php else : ?>
-
-                        <tr>
-                            <td colspan="4" class="text-center py-4">
-                                Tidak ada data penjualan
-                            </td>
-                        </tr>
-
-                    <?php endif; ?>
+                        <?php endif; ?>
 
                     </tbody>
 
@@ -160,6 +150,18 @@ ob_start();
         </div>
 
     </div>
+
+    <?php if (empty($produkStokHabis)): ?>
+        <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            Produk sedang kehabisan stok.
+        </div>
+    <?php else: ?>
+        <div class="alert alert-success">
+            <i class="bi bi-check-circle-fill"></i>
+            Semua produk masih tersedia.
+        </div>
+    <?php endif; ?>
 
     <!-- Produk Terlaris -->
     <div class="card border-0 shadow-sm">
@@ -189,53 +191,141 @@ ob_start();
 
                     <tbody>
 
-                    <?php if (!empty($produkTerlaris)) : ?>
+                        <?php if (!empty($produkTerlaris)): ?>
 
-                        <?php foreach ($produkTerlaris as $i => $produk) : ?>
+                            <?php foreach ($produkTerlaris as $i => $produk): ?>
+
+                                <tr>
+
+                                    <td><?= $i + 1 ?></td>
+
+                                    <td>
+                                        <?= htmlspecialchars($produk['kode_barang']) ?>
+                                    </td>
+
+                                    <td>
+                                        <?= htmlspecialchars($produk['nama_barang']) ?>
+                                    </td>
+
+                                    <td>
+                                        <?= htmlspecialchars($produk['nama_kategori']) ?>
+                                    </td>
+
+                                    <td>
+                                        <?= number_format($produk['total_terjual']) ?>
+                                    </td>
+
+                                    <td>
+                                        Rp <?= number_format($produk['total_pendapatan'], 0, ',', '.') ?>
+                                    </td>
+
+                                </tr>
+
+                            <?php endforeach; ?>
+
+                        <?php else: ?>
 
                             <tr>
-
-                                <td><?= $i + 1 ?></td>
-
-                                <td>
-                                    <?= htmlspecialchars($produk['kode_barang']) ?>
+                                <td colspan="6" class="text-center py-4">
+                                    Belum ada data penjualan
                                 </td>
-
-                                <td>
-                                    <?= htmlspecialchars($produk['nama_barang']) ?>
-                                </td>
-
-                                <td>
-                                    <?= htmlspecialchars($produk['nama_kategori']) ?>
-                                </td>
-
-                                <td>
-                                    <?= number_format($produk['total_terjual']) ?>
-                                </td>
-
-                                <td>
-                                    Rp <?= number_format($produk['total_pendapatan'], 0, ',', '.') ?>
-                                </td>
-
                             </tr>
 
-                        <?php endforeach; ?>
-
-                    <?php else : ?>
-
-                        <tr>
-                            <td colspan="6" class="text-center py-4">
-                                Belum ada data penjualan
-                            </td>
-                        </tr>
-
-                    <?php endif; ?>
+                        <?php endif; ?>
 
                     </tbody>
 
                 </table>
 
             </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="card border-0 shadow-sm mt-4">
+
+    <div class="card-header bg-danger text-white">
+
+        <h5 class="mb-0">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            Produk Stok Habis
+        </h5>
+
+    </div>
+
+    <div class="card-body p-0">
+
+        <div class="table-responsive">
+
+            <table class="table table-hover mb-0">
+
+                <thead class="table-light">
+
+                    <tr>
+                        <th>No</th>
+                        <th>Kode Barang</th>
+                        <th>Nama Barang</th>
+                        <th>Kategori</th>
+                        <th>Harga</th>
+                        <th>Stok</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    <?php if (!empty($stokHabis)): ?>
+
+                        <?php foreach ($stokHabis as $i => $barang): ?>
+
+                            <tr>
+
+                                <td><?= $i + 1 ?></td>
+
+                                <td><?= htmlspecialchars($barang['kode_barang']) ?></td>
+
+                                <td><?= htmlspecialchars($barang['nama_barang']) ?></td>
+
+                                <td><?= htmlspecialchars($barang['nama_kategori']) ?></td>
+
+                                <td>
+                                    Rp <?= number_format($barang['harga_jual'], 0, ',', '.') ?>
+                                </td>
+
+                                <td>
+                                    <span class="badge bg-danger">
+                                        <?= $barang['stok'] ?>
+                                    </span>
+                                </td>
+
+                            </tr>
+
+                        <?php endforeach; ?>
+
+                    <?php else: ?>
+
+                        <tr>
+
+                            <td colspan="6" class="text-center py-4">
+
+                                <i class="bi bi-check-circle-fill text-success"></i>
+
+                                <br>
+
+                                Tidak ada produk yang kehabisan stok
+
+                            </td>
+
+                        </tr>
+
+                    <?php endif; ?>
+
+                </tbody>
+
+            </table>
 
         </div>
 
