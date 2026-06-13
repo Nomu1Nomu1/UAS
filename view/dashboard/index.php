@@ -11,5 +11,5 @@
 
 <?php
 $content = ob_get_clean();
-require_once '../layouts/main.php';
+require_once __DIR__ . '/../layouts/main.php';
 ?>
