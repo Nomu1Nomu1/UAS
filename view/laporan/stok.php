@@ -15,10 +15,10 @@ $produk_list = $db->query(
      ORDER BY p.stock ASC"
 )->fetch_all(MYSQLI_ASSOC);
 
-$total_produk   = count($produk_list);
-$stok_aman      = array_filter($produk_list, fn($r) => $r['stock'] > $r['stock_min']);
-$stok_menipis   = array_filter($produk_list, fn($r) => $r['stock'] > 0 && $r['stock'] <= $r['stock_min']);
-$stok_habis     = array_filter($produk_list, fn($r) => $r['stock'] == 0);
+$total_produk = count($produk_list);
+$stok_aman = array_filter($produk_list, fn($r) => $r['stock'] > $r['stock_min']);
+$stok_menipis = array_filter($produk_list, fn($r) => $r['stock'] > 0 && $r['stock'] <= $r['stock_min']);
+$stok_habis = array_filter($produk_list, fn($r) => $r['stock'] == 0);
 ?>
 
 <div class="container-fluid">
@@ -26,7 +26,7 @@ $stok_habis     = array_filter($produk_list, fn($r) => $r['stock'] == 0);
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <a href="index.php" class="text-muted text-decoration-none small">
+            <a href="?page=laporan&action=index" class="text-muted text-decoration-none small">
                 <i class="bi bi-arrow-left"></i> Kembali ke Laporan
             </a>
             <h2 class="fw-bold mb-1 mt-1">Laporan Stok</h2>
@@ -96,8 +96,8 @@ $stok_habis     = array_filter($produk_list, fn($r) => $r['stock'] == 0);
                                     <td><?= htmlspecialchars($p['nama_kategori']) ?></td>
                                     <td><?= htmlspecialchars($p['nama_distributor']) ?></td>
                                     <td>Rp <?= number_format($p['harga_jual'], 0, ',', '.') ?></td>
-                                    <td><?= $p['stock_min'] ?> <?= $p['satuan'] ?></td>
-                                    <td class="fw-bold"><?= $p['stock'] ?> <?= $p['satuan'] ?></td>
+                                    <td><?= $p['stock_min'] ?>         <?= $p['satuan'] ?></td>
+                                    <td class="fw-bold"><?= $p['stock'] ?>         <?= $p['satuan'] ?></td>
                                     <td>
                                         <?php if ($p['stock'] == 0): ?>
                                             <span class="badge bg-danger">Habis</span>
@@ -126,8 +126,8 @@ $stok_habis     = array_filter($produk_list, fn($r) => $r['stock'] == 0);
 </div>
 
 <?php
-$content   = ob_get_clean();
-$title     = 'Laporan Stok';
+$content = ob_get_clean();
+$title = 'Laporan Stok';
 $pageTitle = 'Laporan Stok';
 require __DIR__ . '/../layouts/main.php';
 ?>

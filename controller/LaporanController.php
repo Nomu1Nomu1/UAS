@@ -234,8 +234,7 @@ class LaporanController
     public function exportPdf(): void
     {
         if (!is_logged_in()) {
-            header('Location: ../auth/login.php');
-            exit;
+            redirect('auth/login');
         }
 
         $db = getDB();
@@ -248,16 +247,19 @@ class LaporanController
                 $tgl_sampai = date('Y-m-d');
                 $label = 'Hari Ini (' . date('d M Y') . ')';
                 break;
+
             case 'minggu_ini':
                 $tgl_dari = date('Y-m-d', strtotime('monday this week'));
                 $tgl_sampai = date('Y-m-d', strtotime('sunday this week'));
                 $label = 'Minggu Ini';
                 break;
+
             case 'tahun_ini':
                 $tgl_dari = date('Y-01-01');
                 $tgl_sampai = date('Y-12-31');
                 $label = 'Tahun ' . date('Y');
                 break;
+
             default:
                 $tgl_dari = date('Y-m-01');
                 $tgl_sampai = date('Y-m-t');
@@ -266,47 +268,54 @@ class LaporanController
         }
 
         // Summary
-        $stmt = $db->prepare(
-            "SELECT COALESCE(SUM(total_harga),0) AS total_penjualan,
+        $stmt = $db->prepare("
+        SELECT
+            COALESCE(SUM(total_harga),0) AS total_penjualan,
             COUNT(*) AS total_transaksi,
             COALESCE(AVG(total_harga),0) AS rata_transaksi
-     FROM transaksi
-     WHERE status='Selesai'
-       AND DATE(tanggal_transaksi) BETWEEN ? AND ?"
-        );
+        FROM transaksi
+        WHERE status='Selesai'
+        AND DATE(tanggal_transaksi) BETWEEN ? AND ?
+    ");
+
         $stmt->bind_param('ss', $tgl_dari, $tgl_sampai);
         $stmt->execute();
         $summary = $stmt->get_result()->fetch_assoc();
 
         // Produk Terlaris
-        $stmt2 = $db->prepare(
-            "SELECT p.nama_barang, SUM(dt.qty) AS total_terjual, SUM(dt.subtotal) AS total_pendapatan
-     FROM detail_transaksi dt
-     JOIN transaksi t ON dt.id_trx = t.id
-     JOIN product   p ON dt.produk_id = p.id
-     WHERE t.status='Selesai'
-       AND DATE(t.tanggal_transaksi) BETWEEN ? AND ?
-     GROUP BY dt.produk_id
-     ORDER BY total_terjual DESC
-     LIMIT 10"
-        );
+        $stmt2 = $db->prepare("
+        SELECT
+            p.nama_barang,
+            SUM(dt.qty) AS total_terjual,
+            SUM(dt.subtotal) AS total_pendapatan
+        FROM detail_transaksi dt
+        JOIN transaksi t ON dt.id_trx = t.id
+        JOIN product p ON dt.produk_id = p.id
+        WHERE t.status='Selesai'
+        AND DATE(t.tanggal_transaksi) BETWEEN ? AND ?
+        GROUP BY dt.produk_id
+        ORDER BY total_terjual DESC
+        LIMIT 10
+    ");
+
         $stmt2->bind_param('ss', $tgl_dari, $tgl_sampai);
         $stmt2->execute();
         $produkTerlaris = $stmt2->get_result()->fetch_all(MYSQLI_ASSOC);
 
         // Stok Menipis
-        $stokMenipis = $db->query(
-            "SELECT p.kode_barang, p.nama_barang, p.stock, p.stock_min, k.nama_kategori
-     FROM product p
-     JOIN kategori_product k ON p.kategori_id = k.id
-     WHERE p.stock <= p.stock_min
-     ORDER BY p.stock ASC"
-        )->fetch_all(MYSQLI_ASSOC);
+        $stokMenipis = $db->query("
+        SELECT
+            p.kode_barang,
+            p.nama_barang,
+            p.stock,
+            p.stock_min,
+            k.nama_kategori
+        FROM product p
+        JOIN kategori_product k ON p.kategori_id = k.id
+        WHERE p.stock <= p.stock_min
+        ORDER BY p.stock ASC
+    ")->fetch_all(MYSQLI_ASSOC);
 
-        function fmt(float $n): string
-        {
-            return 'Rp ' . number_format($n, 0, ',', '.');
-        }
         require_once __DIR__ . '/../view/laporan/export_pdf.php';
     }
 }
