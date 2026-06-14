@@ -1,8 +1,8 @@
 <?php
 ob_start();
 
-$db     = getDB();
-$dari   = $_GET['dari']   ?? date('Y-m-01');
+$db = getDB();
+$dari = $_GET['dari'] ?? date('Y-m-01');
 $sampai = $_GET['sampai'] ?? date('Y-m-d');
 
 // Penjualan harian
@@ -62,10 +62,9 @@ $stokHabis = $db->query(
 
 <div class="container-fluid">
 
-    <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <a href="index.php" class="text-muted text-decoration-none small">
+            <a href="?page=laporan&action=index" class="text-muted text-decoration-none small">
                 <i class="bi bi-arrow-left"></i> Kembali ke Laporan
             </a>
             <h2 class="fw-bold mb-1 mt-1">Laporan Penjualan</h2>
@@ -80,7 +79,8 @@ $stokHabis = $db->query(
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-body">
             <form method="GET" class="row g-3">
-                <input type="hidden" name="url" value="laporan/penjualan">
+                <input type="hidden" name="page" value="laporan">
+                <input type="hidden" name="action" value="penjualan">
                 <div class="col-md-4">
                     <label class="form-label fw-semibold">Dari Tanggal</label>
                     <input type="date" name="dari" class="form-control" value="<?= htmlspecialchars($dari) ?>">
@@ -199,47 +199,13 @@ $stokHabis = $db->query(
     </div>
 
     <!-- Stok Menipis/Habis -->
-    <?php if (!empty($stokHabis)): ?>
-    <div class="card border-0 shadow-sm">
-        <div class="card-header bg-danger text-white">
-            <h5 class="mb-0"><i class="bi bi-exclamation-triangle-fill"></i> Produk Stok Menipis / Habis</h5>
-        </div>
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th>No</th>
-                            <th>Kode Barang</th>
-                            <th>Nama Barang</th>
-                            <th>Kategori</th>
-                            <th>Harga Jual</th>
-                            <th>Stok</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($stokHabis as $i => $barang): ?>
-                            <tr>
-                                <td><?= $i + 1 ?></td>
-                                <td><?= htmlspecialchars($barang['kode_barang']) ?></td>
-                                <td><?= htmlspecialchars($barang['nama_barang']) ?></td>
-                                <td><?= htmlspecialchars($barang['nama_kategori']) ?></td>
-                                <td>Rp <?= number_format($barang['harga_jual'], 0, ',', '.') ?></td>
-                                <td><span class="badge bg-danger"><?= $barang['stock'] ?></span></td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-    <?php endif; ?>
+    
 
 </div>
 
 <?php
-$content   = ob_get_clean();
-$title     = 'Laporan Penjualan';
+$content = ob_get_clean();
+$title = 'Laporan Penjualan';
 $pageTitle = 'Laporan Penjualan';
 require __DIR__ . '/../layouts/main.php';
 ?>

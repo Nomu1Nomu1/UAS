@@ -7,24 +7,24 @@ $periode = $_GET['periode'] ?? 'bulan_ini';
 
 switch ($periode) {
     case 'hari_ini':
-        $tgl_dari   = date('Y-m-d');
+        $tgl_dari = date('Y-m-d');
         $tgl_sampai = date('Y-m-d');
-        $label      = 'Hari Ini';
+        $label = 'Hari Ini';
         break;
     case 'minggu_ini':
-        $tgl_dari   = date('Y-m-d', strtotime('monday this week'));
+        $tgl_dari = date('Y-m-d', strtotime('monday this week'));
         $tgl_sampai = date('Y-m-d', strtotime('sunday this week'));
-        $label      = 'Minggu Ini';
+        $label = 'Minggu Ini';
         break;
     case 'tahun_ini':
-        $tgl_dari   = date('Y-01-01');
+        $tgl_dari = date('Y-01-01');
         $tgl_sampai = date('Y-12-31');
-        $label      = 'Tahun Ini';
+        $label = 'Tahun Ini';
         break;
     default: // bulan_ini
-        $tgl_dari   = date('Y-m-01');
+        $tgl_dari = date('Y-m-01');
         $tgl_sampai = date('Y-m-t');
-        $label      = 'Bulan Ini';
+        $label = 'Bulan Ini';
         break;
 }
 
@@ -48,7 +48,7 @@ for ($i = 5; $i >= 0; $i--) {
 
 $grafik_data = [];
 foreach ($bulan6 as $bln) {
-    $dari_bln   = $bln . '-01';
+    $dari_bln = $bln . '-01';
     $sampai_bln = date('Y-m-t', strtotime($dari_bln));
 
     $st = $db->prepare(
@@ -63,7 +63,7 @@ foreach ($bulan6 as $bln) {
 
     $grafik_data[] = [
         'label' => date('M', strtotime($dari_bln)),
-        'total' => (float)$row['total'],
+        'total' => (float) $row['total'],
     ];
 }
 
@@ -86,14 +86,19 @@ $stmt2->bind_param('ss', $tgl_dari, $tgl_sampai);
 $stmt2->execute();
 $produk_terlaris = $stmt2->get_result()->fetch_all(MYSQLI_ASSOC);
 
-function fmt_short(float $n): string {
-    if ($n >= 1_000_000_000) return 'Rp ' . number_format($n / 1_000_000_000, 1) . 'B';
-    if ($n >= 1_000_000)     return 'Rp ' . number_format($n / 1_000_000, 1)     . 'M';
-    if ($n >= 1_000)         return 'Rp ' . number_format($n / 1_000, 1)          . 'K';
+function fmt_short(float $n): string
+{
+    if ($n >= 1_000_000_000)
+        return 'Rp ' . number_format($n / 1_000_000_000, 1) . 'B';
+    if ($n >= 1_000_000)
+        return 'Rp ' . number_format($n / 1_000_000, 1) . 'M';
+    if ($n >= 1_000)
+        return 'Rp ' . number_format($n / 1_000, 1) . 'K';
     return 'Rp ' . number_format($n, 0, ',', '.');
 }
 
-function fmt_rupiah(float $n): string {
+function fmt_rupiah(float $n): string
+{
     return 'Rp ' . number_format($n, 0, ',', '.');
 }
 ?>
@@ -107,20 +112,21 @@ function fmt_rupiah(float $n): string {
         </div>
 
         <a href="/UAS/?page=laporan&action=exportPdf&periode=<?= urlencode($periode) ?>"
-           class="btn btn-success d-flex align-items-center gap-2">
+            class="btn btn-success d-flex align-items-center gap-2">
             <i class="bi bi-download"></i> Export PDF
         </a>
     </div>
 
     <div class="card-section mb-4">
         <form method="GET" class="d-flex align-items-center gap-3">
-            <input type="hidden" name="url" value="laporan/index">
+            <input type="hidden" name="page" value="laporan">
+            <input type="hidden" name="action" value="index">
             <i class="bi bi-calendar3 text-muted fs-5"></i>
             <select name="periode" class="form-select report-select">
-                <option value="bulan_ini"  <?= $periode == 'bulan_ini'  ? 'selected' : '' ?>>Bulan Ini</option>
+                <option value="bulan_ini" <?= $periode == 'bulan_ini' ? 'selected' : '' ?>>Bulan Ini</option>
                 <option value="minggu_ini" <?= $periode == 'minggu_ini' ? 'selected' : '' ?>>Minggu Ini</option>
-                <option value="hari_ini"   <?= $periode == 'hari_ini'   ? 'selected' : '' ?>>Hari Ini</option>
-                <option value="tahun_ini"  <?= $periode == 'tahun_ini'  ? 'selected' : '' ?>>Tahun Ini</option>
+                <option value="hari_ini" <?= $periode == 'hari_ini' ? 'selected' : '' ?>>Hari Ini</option>
+                <option value="tahun_ini" <?= $periode == 'tahun_ini' ? 'selected' : '' ?>>Tahun Ini</option>
             </select>
             <button type="submit" class="btn btn-primary px-4">Terapkan</button>
         </form>
@@ -135,7 +141,7 @@ function fmt_rupiah(float $n): string {
                     <span class="fw-semibold">Total Penjualan</span>
                     <i class="bi bi-graph-up fs-4"></i>
                 </div>
-                <h2 class="mb-1"><?= fmt_short((float)$summary['total_penjualan']) ?></h2>
+                <h2 class="mb-1"><?= fmt_short((float) $summary['total_penjualan']) ?></h2>
                 <small class="opacity-75">Periode: <?= $label ?></small>
             </div>
         </div>
@@ -146,7 +152,7 @@ function fmt_rupiah(float $n): string {
                     <span class="fw-semibold">Transaksi</span>
                     <i class="bi bi-bar-chart fs-4"></i>
                 </div>
-                <h2 class="mb-1"><?= number_format((int)$summary['total_transaksi']) ?></h2>
+                <h2 class="mb-1"><?= number_format((int) $summary['total_transaksi']) ?></h2>
                 <small class="opacity-75">Periode: <?= $label ?></small>
             </div>
         </div>
@@ -158,7 +164,7 @@ function fmt_rupiah(float $n): string {
                     <span class="fw-semibold">Rata-rata Transaksi</span>
                     <i class="bi bi-graph-up-arrow fs-4"></i>
                 </div>
-                <h2 class="mb-1"><?= fmt_short((float)$summary['rata_transaksi']) ?></h2>
+                <h2 class="mb-1"><?= fmt_short((float) $summary['rata_transaksi']) ?></h2>
                 <small class="opacity-75">Per transaksi</small>
             </div>
         </div>
@@ -204,7 +210,7 @@ function fmt_rupiah(float $n): string {
                                     <small class="text-muted">Terjual: <?= number_format($p['total_terjual']) ?> unit</small>
                                 </div>
                             </div>
-                            <div class="price"><?= fmt_short((float)$p['total_pendapatan']) ?></div>
+                            <div class="price"><?= fmt_short((float) $p['total_pendapatan']) ?></div>
                         </div>
                     <?php endforeach; ?>
                 <?php else: ?>
@@ -226,7 +232,8 @@ function fmt_rupiah(float $n): string {
         <div class="row g-3">
 
             <div class="col-md-4">
-                <a href="/UAS/?page=laporan&action=penjualan" class="report-type d-block text-decoration-none text-dark">
+                <a href="/UAS/?page=laporan&action=penjualan"
+                    class="report-type d-block text-decoration-none text-dark">
                     <i class="bi bi-bar-chart-line d-block"></i>
                     <div class="fw-semibold mt-2">Laporan Penjualan</div>
                     <small class="text-muted">Detail transaksi penjualan periode tertentu</small>
@@ -255,8 +262,8 @@ function fmt_rupiah(float $n): string {
 </div>
 
 <?php
-$content  = ob_get_clean();
-$title    = 'Laporan';
+$content = ob_get_clean();
+$title = 'Laporan';
 $pageTitle = 'Laporan';
 require __DIR__ . '/../layouts/main.php';
 ?>
