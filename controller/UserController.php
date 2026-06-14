@@ -6,7 +6,7 @@ class UserController
     public function index(): void
     {
         if (!is_logged_in()) redirect('auth/login');
-        allow_roles(['owner']);
+        allow_roles(['admin']);
 
         $db    = getDB();
         $users = $db->query(

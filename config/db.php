@@ -1,8 +1,10 @@
 <?php
 
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
-// define('BASE_URL', '/UAS');
+define('BASE_URL', '/UAS'); // DISESUAIKAN SAMA FOLDER
 define('DB_HOST',  'localhost');
 define('DB_USER',  'root');
 define('DB_PASS',  '');
@@ -20,8 +22,11 @@ function getDB(): mysqli
 
 function redirect(string $path): void
 {
-    $base = rtrim('/');
-    header("Location: {$base}/{$path}");
+    $base  = rtrim(BASE_URL, '/');
+    $parts = explode('/', $path, 2);
+    $page   = $parts[0] ?? '';
+    $action = $parts[1] ?? 'index';
+    header("Location: {$base}/?page={$page}&action={$action}");
     exit;
 }
 

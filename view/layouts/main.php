@@ -10,23 +10,23 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
 
-    <link rel="stylesheet" href="../../assets/css/custom.css">
+    <link rel="stylesheet" href="/UAS/assets/css/custom.css">
 </head>
 <body>
 
 <div class="app-layout">
 
-    <?php require 'sidebar.php'; ?>
+    <?php require __DIR__ . '/sidebar.php'; ?>
 
     <div class="content-wrapper">
 
-        <?php require 'header.php'; ?>
+        <?php require __DIR__ . '/header.php'; ?>
 
         <main class="main-content">
             <?= $content ?>
         </main>
 
-        <?php require 'footer.php'; ?>
+        <?php require __DIR__ . '/footer.php'; ?>
 
     </div>
 

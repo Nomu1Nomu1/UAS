@@ -1,5 +1,4 @@
 <?php
-// UAS/controller/DashboardController.php
 require_once __DIR__ . '/../model/Product.php';
 require_once __DIR__ . '/../model/Transaksi.php';
 require_once __DIR__ . '/../model/Pengadaan.php';
