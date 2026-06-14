@@ -86,7 +86,6 @@ $stmt2->bind_param('ss', $tgl_dari, $tgl_sampai);
 $stmt2->execute();
 $produk_terlaris = $stmt2->get_result()->fetch_all(MYSQLI_ASSOC);
 
-// Helper: format singkat Rp (M = juta, K = ribu)
 function fmt_short(float $n): string {
     if ($n >= 1_000_000_000) return 'Rp ' . number_format($n / 1_000_000_000, 1) . 'B';
     if ($n >= 1_000_000)     return 'Rp ' . number_format($n / 1_000_000, 1)     . 'M';
@@ -101,7 +100,6 @@ function fmt_rupiah(float $n): string {
 
 <div class="container-fluid">
 
-    <!-- Header -->
     <div class="report-header mb-4">
         <div>
             <h2 class="fw-bold mb-1">Laporan</h2>
@@ -114,7 +112,6 @@ function fmt_rupiah(float $n): string {
         </a>
     </div>
 
-    <!-- Filter Periode -->
     <div class="card-section mb-4">
         <form method="GET" class="d-flex align-items-center gap-3">
             <input type="hidden" name="url" value="laporan/index">
@@ -129,7 +126,6 @@ function fmt_rupiah(float $n): string {
         </form>
     </div>
 
-    <!-- Stat Cards -->
     <div class="row g-4 mb-4">
 
         <!-- Total Penjualan -->
@@ -144,7 +140,6 @@ function fmt_rupiah(float $n): string {
             </div>
         </div>
 
-        <!-- Transaksi -->
         <div class="col-md-4">
             <div class="stat-card stat-green">
                 <div class="d-flex justify-content-between align-items-center">
@@ -247,7 +242,7 @@ function fmt_rupiah(float $n): string {
             </div>
 
             <div class="col-md-4">
-                <a href="/UAS/?page=laporan&action=pengadaan" class="report-type d-block text-decoration-none text-dark">
+                <a href="/UAS/?page=pengadaan&action=index" class="report-type d-block text-decoration-none text-dark">
                     <i class="bi bi-download d-block"></i>
                     <div class="fw-semibold mt-2">Laporan Pengadaan</div>
                     <small class="text-muted">Riwayat pengadaan barang</small>
