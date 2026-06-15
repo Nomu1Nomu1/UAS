@@ -68,7 +68,7 @@ $menuItems = [
         'href' => '/UAS/?page=laporan&action=index',
         'icon' => 'bi-file-earmark-text',
         'label' => 'Laporan',
-        'roles' => ['admin'],          // kasir TIDAK bisa akses
+        'roles' => ['admin', 'kasir'],          // kasir TIDAK bisa akses
     ],
     [
         'folder' => 'user',

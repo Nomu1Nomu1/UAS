@@ -11,18 +11,35 @@ class DashboardController
         $transaksiModel = new Transaksi();
         $pengadaanModel = new Pengadaan();
 
-        $totalProduk       = count($productModel->getAll());
-        $stockMenipis      = count($productModel->getStokMenipis());
-        $transaksiTerakhir = $transaksiModel->getAll('', date('Y-m-d')); // hari ini
-        $pengadaanPending  = count(array_filter($pengadaanModel->getAll(), fn($p) => $p['status'] === 'Pending'));
-        
         // Statistik hari ini
-        $totalTRXHariIni   = count($transaksiTerakhir);
-        $pendapatanHariIni = array_sum(array_column($transaksiTerakhir, 'total_harga'));
-        $listStockMenipis  = $productModel->getStokMenipis();
+        $totalProduk = count($productModel->getAll());
+        $stockMenipis = count($productModel->getStokMenipis());
+
+        $persenProdukAman = 0;
+
+        if ($totalProduk > 0) {
+            $persenProdukAman = round(
+                (($totalProduk - $stockMenipis) / $totalProduk) * 100
+            );
+        }
+
+        $transaksiTerakhir = $transaksiModel->getAll('', date('Y-m-d'));
+        $pengadaanPending = count(
+            array_filter(
+                $pengadaanModel->getAll(),
+                fn($p) => $p['status'] === 'Pending'
+            )
+        );
+
+        $totalTRXHariIni = count($transaksiTerakhir);
+        $pendapatanHariIni = array_sum(
+            array_column($transaksiTerakhir, 'total_harga')
+        );
+
+        $listStockMenipis = $productModel->getStokMenipis();
 
         $pageTitle = 'Dashboard';
-        
+
         // Load view
         require_once __DIR__ . '/../view/dashboard/index.php';
     }
