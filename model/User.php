@@ -133,9 +133,7 @@ class User
         return $stmt->execute();
     }
 
-    /* ─── HELPER ─────────────────────────────────────── */
-
-    /** Verifikasi password saat login */
+    
     public function verifyPassword(string $plain, string $hash): bool
     {
         return password_verify($plain, $hash);
