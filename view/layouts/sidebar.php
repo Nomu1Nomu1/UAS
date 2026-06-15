@@ -51,7 +51,7 @@ $menuItems = [
     ],
     [
         'folder' => 'transaksi',
-        'href'   => '/UAS/?page=transaksi&action=index',
+        'href'   => '/UAS/?page=transaksi&action=kasir',
         'icon'   => 'bi-credit-card',
         'label'  => 'Transaksi',
         'roles'  => ['admin', 'kasir'],
@@ -90,7 +90,7 @@ $words    = explode(' ', $namaUser);
 $initials = strtoupper(substr($words[0], 0, 1) . (isset($words[1]) ? substr($words[1], 0, 1) : ''));
 ?>
 
-<aside class="sidebar">
+<aside class="sidebar" id="sidebar">
 
     <div class="sidebar-logo">
         <h3>UMKM Inventory</h3>

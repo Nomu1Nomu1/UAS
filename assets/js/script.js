@@ -6,19 +6,51 @@
 
 /* ── Sidebar Toggle (mobile) ─────────────────────────────── */
 (function () {
-  const toggle  = document.getElementById('sidebarToggle');
-  const sidebar = document.getElementById('sidebar');
-  if (!toggle || !sidebar) return;
+  const toggle   = document.getElementById('sidebarToggle');
+  const closeBtn = document.getElementById('sidebarClose');
+  const sidebar  = document.getElementById('sidebar');
+  const overlay  = document.getElementById('sidebarOverlay');
+  if (!sidebar) return;
 
-  toggle.addEventListener('click', () => {
-    sidebar.classList.toggle('open');
+  function openSidebar() {
+    sidebar.classList.add('open');
+    if (overlay) overlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeSidebar() {
+    sidebar.classList.remove('open');
+    if (overlay) overlay.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  if (toggle) {
+    toggle.addEventListener('click', () => {
+      sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+    });
+  }
+
+  if (closeBtn) {
+    closeBtn.addEventListener('click', closeSidebar);
+  }
+
+  if (overlay) {
+    overlay.addEventListener('click', closeSidebar);
+  }
+
+  // Tutup sidebar saat navigasi (link diklik) di mobile
+  sidebar.querySelectorAll('a').forEach((link) => {
+    link.addEventListener('click', () => {
+      if (window.innerWidth <= 768) closeSidebar();
+    });
   });
 
-  // Close sidebar when clicking outside on mobile
-  document.addEventListener('click', (e) => {
-    if (window.innerWidth > 768) return;
-    if (!sidebar.contains(e.target) && !toggle.contains(e.target)) {
+  // Reset saat resize ke desktop
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 768) {
       sidebar.classList.remove('open');
+      if (overlay) overlay.classList.remove('active');
+      document.body.style.overflow = '';
     }
   });
 })();
