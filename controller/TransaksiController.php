@@ -5,31 +5,32 @@ class TransaksiController
 {
     public function index(): void
     {
-        if (!is_logged_in()) redirect('auth/login');
+        if (!is_logged_in())
+            redirect('auth/login');
 
-        $db      = getDB();
-        $search  = trim($_GET['search']  ?? '');
+        $db = getDB();
+        $search = trim($_GET['search'] ?? '');
         $tanggal = trim($_GET['tanggal'] ?? '');
 
-        $sql    = "SELECT t.*, u.nama AS kasir
+        $sql = "SELECT t.*, u.nama AS kasir
                    FROM transaksi t
                    JOIN users u ON t.user_id = u.user_id
                    WHERE 1=1";
         $params = [];
-        $types  = '';
+        $types = '';
 
         if ($search !== '') {
-            $like     = "%{$search}%";
-            $sql     .= " AND (t.no_trx LIKE ? OR u.nama LIKE ?)";
+            $like = "%{$search}%";
+            $sql .= " AND (t.no_trx LIKE ? OR u.nama LIKE ?)";
             $params[] = $like;
             $params[] = $like;
-            $types   .= 'ss';
+            $types .= 'ss';
         }
 
         if ($tanggal !== '') {
-            $sql     .= " AND DATE(t.tanggal_transaksi) = ?";
+            $sql .= " AND DATE(t.tanggal_transaksi) = ?";
             $params[] = $tanggal;
-            $types   .= 's';
+            $types .= 's';
         }
 
         $sql .= " ORDER BY t.id DESC";
@@ -49,13 +50,17 @@ class TransaksiController
 
     public function kasir(): void
     {
-        if (!is_logged_in()) redirect('auth/login');
+        if (!is_logged_in())
+            redirect('auth/login');
 
-        $db       = getDB();
+        $db = getDB();
         $products = $db->query(
             "SELECT id, kode_barang, nama_barang, harga_jual, stock, satuan
              FROM product WHERE stock > 0 ORDER BY nama_barang"
         )->fetch_all(MYSQLI_ASSOC);
+
+        $flash = $_SESSION['flash'] ?? '';
+        unset($_SESSION['flash']);
 
         $pageTitle = 'Kasir / POS';
         require_once __DIR__ . '/../view/transaksi/kasir.php';
@@ -63,13 +68,15 @@ class TransaksiController
 
     public function create(): void
     {
-        if (!is_logged_in()) redirect('auth/login');
+        if (!is_logged_in())
+            redirect('auth/login');
 
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') redirect('transaksi/kasir');
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST')
+            redirect('transaksi/kasir');
 
-        $db         = getDB();
-        $items      = $_POST['items']      ?? [];
-        $bayar      = (float) ($_POST['bayar'] ?? 0);
+        $db = getDB();
+        $items = $_POST['items'] ?? [];
+        $bayar = (float) ($_POST['bayar'] ?? 0);
         $keterangan = trim($_POST['keterangan'] ?? '') ?: null;
 
         if (empty($items)) {
@@ -77,18 +84,19 @@ class TransaksiController
             redirect('transaksi/kasir');
         }
 
-        $user_id     = $_SESSION['users']['id'];
-        $now         = date('Y-m-d H:i:s');
-        $no_trx      = 'TRX-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -5));
+        $user_id = $_SESSION['users']['id'];
+        $now = date('Y-m-d H:i:s');
+        $no_trx = 'TRX-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -5));
         $total_harga = 0;
 
         // Validasi stok dan hitung total
         foreach ($items as $item) {
-            $produk_id = (int)   ($item['produk_id']    ?? 0);
-            $qty       = (int)   ($item['qty']          ?? 0);
-            $harga     = (float) ($item['harga_satuan'] ?? 0);
+            $produk_id = (int) ($item['produk_id'] ?? 0);
+            $qty = (int) ($item['qty'] ?? 0);
+            $harga = (float) ($item['harga_satuan'] ?? 0);
 
-            if ($produk_id <= 0 || $qty <= 0) continue;
+            if ($produk_id <= 0 || $qty <= 0)
+                continue;
 
             $stmt = $db->prepare("SELECT stock FROM product WHERE id = ?");
             $stmt->bind_param('i', $produk_id);
@@ -122,12 +130,13 @@ class TransaksiController
             $trx_id = $db->insert_id;
 
             foreach ($items as $item) {
-                $produk_id = (int)   ($item['produk_id']    ?? 0);
-                $qty       = (int)   ($item['qty']          ?? 0);
+                $produk_id = (int) ($item['produk_id'] ?? 0);
+                $qty = (int) ($item['qty'] ?? 0);
                 $harga_sat = (float) ($item['harga_satuan'] ?? 0);
-                $subtotal  = $qty * $harga_sat;
+                $subtotal = $qty * $harga_sat;
 
-                if ($produk_id <= 0 || $qty <= 0) continue;
+                if ($produk_id <= 0 || $qty <= 0)
+                    continue;
 
                 $stmt2 = $db->prepare(
                     "INSERT INTO detail_transaksi (id_trx, produk_id, qty, harga_satuan, subtotal)
@@ -142,7 +151,7 @@ class TransaksiController
             }
 
             $db->commit();
-            $_SESSION['flash']    = "Transaksi {$no_trx} berhasil. Kembalian: " . format_rupiah($kembalian);
+            $_SESSION['flash'] = "Transaksi {$no_trx} berhasil. Kembalian: " . format_rupiah($kembalian);
             $_SESSION['last_trx'] = $trx_id;
             redirect('transaksi/index');
         } catch (Exception $e) {
@@ -154,7 +163,8 @@ class TransaksiController
 
     public function batal(): void
     {
-        if (!is_logged_in()) redirect('auth/login');
+        if (!is_logged_in())
+            redirect('auth/login');
         allow_roles(['owner', 'admin']);
 
         $id = (int) ($_GET['id'] ?? 0);
@@ -165,7 +175,8 @@ class TransaksiController
         $stmt->execute();
         $trx = $stmt->get_result()->fetch_assoc();
 
-        if (!$trx) redirect('transaksi/index');
+        if (!$trx)
+            redirect('transaksi/index');
 
         // FIX: gunakan prepared statement
         $stmt2 = $db->prepare(
@@ -199,7 +210,8 @@ class TransaksiController
 
     public function detail(): void
     {
-        if (!is_logged_in()) redirect('auth/login');
+        if (!is_logged_in())
+            redirect('auth/login');
 
         $id = (int) ($_GET['id'] ?? 0);
         $db = getDB();
@@ -214,7 +226,8 @@ class TransaksiController
         $stmt->execute();
         $transaksi = $stmt->get_result()->fetch_assoc();
 
-        if (!$transaksi) redirect('transaksi/index');
+        if (!$transaksi)
+            redirect('transaksi/index');
 
         $stmt2 = $db->prepare(
             "SELECT dt.*, p.nama_barang, p.kode_barang, p.satuan

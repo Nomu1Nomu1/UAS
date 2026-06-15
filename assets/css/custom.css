@@ -51,6 +51,8 @@ a{
     flex-direction:column;
 
     z-index:1000;
+
+    transition: transform .3s ease;
 }
 
 /* Logo */
@@ -58,6 +60,9 @@ a{
 .sidebar-logo{
     padding:24px;
     border-bottom:1px solid #e5e7eb;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
 }
 
 .sidebar-logo h3{
@@ -65,6 +70,18 @@ a{
     color:#2563eb;
     font-size:1.2rem;
     font-weight:700;
+}
+
+/* Tombol close di dalam sidebar (mobile) */
+.sidebar-close-btn{
+    display:none;
+    background:none;
+    border:none;
+    font-size:22px;
+    color:#64748b;
+    cursor:pointer;
+    padding:4px;
+    line-height:1;
 }
 
 /* Menu */
@@ -206,15 +223,44 @@ a{
 
     display:flex;
     align-items:center;
+    justify-content:space-between;
 
     padding:0 24px;
 
     border-bottom:1px solid #e5e7eb;
+
+    position:sticky;
+    top:0;
+    z-index:900;
+}
+
+.header-left{
+    display:flex;
+    align-items:center;
+    gap:14px;
 }
 
 .header-date{
     color:#64748b;
     font-size:15px;
+}
+
+/* Hamburger button */
+.sidebar-toggle-btn{
+    display:none;
+    background:none;
+    border:none;
+    font-size:22px;
+    color:#334155;
+    cursor:pointer;
+    padding:6px 8px;
+    border-radius:10px;
+    line-height:1;
+    transition:.2s;
+}
+
+.sidebar-toggle-btn:hover{
+    background:#f1f5f9;
 }
 
 /* ==========================
@@ -285,6 +331,8 @@ a{
     display:flex;
     justify-content:space-between;
     align-items:center;
+    flex-wrap:wrap;
+    gap:12px;
 }
 
 .report-filter{
@@ -436,7 +484,26 @@ a{
 }
 
 /* ==========================
-   RESPONSIVE
+   OVERLAY (mobile sidebar)
+========================== */
+
+.sidebar-overlay{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.45);
+    z-index:999;
+    opacity:0;
+    transition:opacity .3s ease;
+}
+
+.sidebar-overlay.active{
+    display:block;
+    opacity:1;
+}
+
+/* ==========================
+   RESPONSIVE — TABLET
 ========================== */
 
 @media (max-width: 992px){
@@ -454,32 +521,105 @@ a{
     }
 }
 
+/* ==========================
+   RESPONSIVE — MOBILE
+========================== */
+
 @media (max-width: 768px){
 
+    /* Sidebar jadi drawer dari kiri, tersembunyi default */
     .sidebar{
-        width:80px;
+        width:270px;
+        transform:translateX(-100%);
+        box-shadow:none;
     }
 
+    /* Saat sidebar terbuka */
+    .sidebar.open{
+        transform:translateX(0);
+        box-shadow:4px 0 30px rgba(0,0,0,.15);
+    }
+
+    /* Tombol close sidebar tampil */
+    .sidebar-close-btn{
+        display:block;
+    }
+
+    /* Content penuh */
     .content-wrapper{
-        margin-left:80px;
+        margin-left:0;
     }
 
-    .sidebar-logo h3,
-    .sidebar-menu span,
-    .sidebar-user-info,
-    .logout-btn span{
+    /* Hamburger tampil di header */
+    .sidebar-toggle-btn{
+        display:flex;
+        align-items:center;
+    }
+
+    /* Main content padding lebih kecil */
+    .main-content{
+        padding:20px 16px;
+    }
+
+    /* Page title lebih kecil */
+    .page-title{
+        font-size:24px;
+    }
+
+    .page-subtitle{
+        font-size:14px;
+    }
+
+    /* Card section padding */
+    .card-section{
+        padding:18px 16px;
+        border-radius:18px;
+    }
+
+    /* Stat card */
+    .stat-card{
+        padding:20px;
+    }
+
+    .stat-card h2{
+        font-size:28px;
+    }
+
+    /* Table scroll horizontal */
+    .table-responsive{
+        overflow-x:auto;
+        -webkit-overflow-scrolling:touch;
+    }
+
+    /* Footer */
+    .footer{
+        padding:14px 16px;
+        font-size:13px;
+    }
+
+    /* Report select full width */
+    .report-select{
+        width:100%;
+    }
+
+    /* Header date hide on very small screen */
+    .header-date{
+        font-size:13px;
+    }
+}
+
+@media (max-width: 480px){
+
+    .header-date{
         display:none;
     }
 
-    .sidebar-menu a{
-        justify-content:center;
+    .top-header{
+        height:60px;
+        padding:0 16px;
     }
 
-    .sidebar-user{
-        justify-content:center;
-    }
-
-    .logout-btn{
-        justify-content:center;
+    .page-title{
+        font-size:22px;
     }
 }

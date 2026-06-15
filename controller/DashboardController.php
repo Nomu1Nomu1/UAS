@@ -7,7 +7,6 @@ class DashboardController
 {
     public function index()
     {
-        // Data untuk statistik
         $productModel = new Product();
         $transaksiModel = new Transaksi();
         $pengadaanModel = new Pengadaan();
