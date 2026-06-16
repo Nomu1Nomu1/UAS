@@ -9,11 +9,43 @@ class UserController
         allow_roles(['admin']);
 
         $db    = getDB();
-        $users = $db->query(
-            "SELECT user_id, username, nama, role, email, no_hp, is_active, createdAt
-             FROM users
-             ORDER BY user_id DESC"
-        )->fetch_all(MYSQLI_ASSOC);
+        $search = trim($_GET['search'] ?? '');
+    $status = $_GET['status'] ?? '';
+
+    $where  = [];
+    $params = [];
+    $types  = '';
+
+    if ($search !== '') {
+        $where[]  = "(nama LIKE ? OR username LIKE ?)";
+        $like     = "%$search%";
+        $params[] = $like;
+        $params[] = $like;
+        $types   .= 'ss';
+    }
+
+    if ($status !== '') {
+        $where[]  = "is_active = ?";
+        $params[] = $status;
+        $types   .= 's';
+    }
+
+    $sql = "SELECT user_id, username, nama, role, email, no_hp, is_active, createdAt FROM users";
+
+    if ($where) {
+        $sql .= " WHERE " . implode(" AND ", $where);
+    }
+
+    $sql .= " ORDER BY user_id DESC";
+
+    if ($params) {
+        $stmt = $db->prepare($sql);
+        $stmt->bind_param($types, ...$params);
+        $stmt->execute();
+        $users = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    } else {
+        $users = $db->query($sql)->fetch_all(MYSQLI_ASSOC);
+    }
 
         $pageTitle = 'Manajemen User';
         require_once __DIR__ . '/../view/user/index.php';
@@ -22,7 +54,7 @@ class UserController
     public function create(): void
     {
         if (!is_logged_in()) redirect('auth/login');
-        allow_roles(['owner']);
+        allow_roles(['owner', 'admin']);
 
         $error = '';
 
@@ -33,7 +65,7 @@ class UserController
             $role     = $_POST['role']        ?? '';
             $email    = trim($_POST['email']  ?? '') ?: null;
             $no_hp    = trim($_POST['no_hp']  ?? '') ?: null;
-
+            $is_active = $_POST['is_active'] ?? 'Y';
             $valid_roles = ['owner', 'admin', 'kasir'];
 
             if (empty($username) || empty($password) || empty($nama) || !in_array($role, $valid_roles)) {
@@ -48,9 +80,9 @@ class UserController
                 $stmt = $db->prepare(
                     "INSERT INTO users
                         (username, password, nama, role, email, no_hp, is_active, createdAt, updatedAt)
-                     VALUES (?, ?, ?, ?, ?, ?, 'Y', ?, ?)"
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
                 );
-                $stmt->bind_param('ssssssss', $username, $hash, $nama, $role, $email, $no_hp, $now, $now);
+                $stmt->bind_param('sssssssss', $username, $hash, $nama, $role, $email, $no_hp, $is_active, $now, $now);
 
                 if ($stmt->execute()) {
                     redirect('user/index');
@@ -67,7 +99,7 @@ class UserController
     public function edit(): void
     {
         if (!is_logged_in()) redirect('auth/login');
-        allow_roles(['owner']);
+        allow_roles(['owner', 'admin']);
 
         $id = (int) ($_GET['id'] ?? 0);
         $db = getDB();
@@ -87,6 +119,7 @@ class UserController
             $email    = trim($_POST['email']  ?? '') ?: null;
             $no_hp    = trim($_POST['no_hp']  ?? '') ?: null;
             $password = $_POST['password']    ?? '';
+            $is_active = $_POST['is_active'] ?? 'Y';
 
             $valid_roles = ['owner', 'admin', 'kasir'];
 
@@ -101,17 +134,17 @@ class UserController
                     $hash = password_hash($password, PASSWORD_DEFAULT);
                     $stmt = $db->prepare(
                         "UPDATE users
-                         SET nama = ?, role = ?, email = ?, no_hp = ?, password = ?, updatedAt = ?
+                         SET nama = ?, role = ?, email = ?, no_hp = ?, password = ?, is_active = ?, updatedAt = ?
                          WHERE user_id = ?"
                     );
-                    $stmt->bind_param('ssssssi', $nama, $role, $email, $no_hp, $hash, $now, $id);
+                    $stmt->bind_param('sssssssi', $nama, $role, $email, $no_hp, $is_active, $hash, $now, $id);
                 } else {
                     $stmt = $db->prepare(
                         "UPDATE users
-                         SET nama = ?, role = ?, email = ?, no_hp = ?, updatedAt = ?
+                         SET nama = ?, role = ?, email = ?, no_hp = ?, is_active = ?, updatedAt = ?
                          WHERE user_id = ?"
                     );
-                    $stmt->bind_param('sssssi', $nama, $role, $email, $no_hp, $now, $id);
+                    $stmt->bind_param('ssssssi', $nama, $role, $email, $no_hp, $is_active, $now, $id);
                 }
 
                 $stmt->execute();
@@ -126,7 +159,7 @@ class UserController
     public function toggleAktif(): void
     {
         if (!is_logged_in()) redirect('auth/login');
-        allow_roles(['owner']);
+        allow_roles(['owner', 'admin']);
 
         $id = (int) ($_GET['id'] ?? 0);
 
@@ -157,7 +190,7 @@ class UserController
     public function delete(): void
     {
         if (!is_logged_in()) redirect('auth/login');
-        allow_roles(['owner']);
+        allow_roles(['owner', 'admin']);
 
         $id = (int) ($_GET['id'] ?? 0);
 
