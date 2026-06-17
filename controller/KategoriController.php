@@ -1,20 +1,19 @@
 <?php
 require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../model/KategoriProduct.php';
 
 class KategoriController
 {
+    private KategoriProduct $model;
+    public function __construct() {
+        $this->model = new KategoriProduct();
+    }
     public function index(): void
     {
         if (!is_logged_in()) redirect('auth/login');
 
-        $db       = getDB();
-        $kategoris = $db->query(
-            "SELECT k.*, COUNT(p.id) AS jumlah_produk
-             FROM kategori_product k
-             LEFT JOIN product p ON p.kategori_id = k.id
-             GROUP BY k.id
-             ORDER BY k.nama_kategori"
-        )->fetch_all(MYSQLI_ASSOC);
+        $search = trim($_GET['search'] ?? '');
+        $kategoris = $this->model->getAll($search);
 
         $pageTitle = 'Kategori Produk';
         require_once __DIR__ . '/../view/kategori/index.php';
@@ -34,12 +33,7 @@ class KategoriController
             if (empty($nama)) {
                 $error = 'Nama kategori wajib diisi.';
             } else {
-                $db   = getDB();
-                $stmt = $db->prepare(
-                    "INSERT INTO kategori_product (nama_kategori, deskripsi) VALUES (?, ?)"
-                );
-                $stmt->bind_param('ss', $nama, $deskripsi);
-                $stmt->execute();
+                $this->model->create($nama, $deskripsi);
                 redirect('kategori/index');
             }
         }
@@ -54,12 +48,7 @@ class KategoriController
         allow_roles(['owner', 'admin']);
 
         $id = (int) ($_GET['id'] ?? 0);
-        $db = getDB();
-
-        $stmt = $db->prepare("SELECT * FROM kategori_product WHERE id = ?");
-        $stmt->bind_param('i', $id);
-        $stmt->execute();
-        $kategori = $stmt->get_result()->fetch_assoc();
+        $kategori = $this->model->findById($id);
 
         if (!$kategori) redirect('kategori/index');
 
@@ -72,11 +61,7 @@ class KategoriController
             if (empty($nama)) {
                 $error = 'Nama kategori wajib diisi.';
             } else {
-                $stmt = $db->prepare(
-                    "UPDATE kategori_product SET nama_kategori = ?, deskripsi = ? WHERE id = ?"
-                );
-                $stmt->bind_param('ssi', $nama, $deskripsi, $id);
-                $stmt->execute();
+                $this->model->update($id, $nama, $deskripsi);
                 redirect('kategori/index');
             }
         }
@@ -91,20 +76,11 @@ class KategoriController
         allow_roles(['owner', 'admin']);
 
         $id = (int) ($_GET['id'] ?? 0);
-        $db = getDB();
 
-        // Cek apakah kategori masih dipakai produk (gunakan prepared statement)
-        $stmt = $db->prepare("SELECT COUNT(*) AS c FROM product WHERE kategori_id = ?");
-        $stmt->bind_param('i', $id);
-        $stmt->execute();
-        $used = (int) $stmt->get_result()->fetch_assoc()['c'];
-
-        if ($used > 0) {
+        if ($this->model->isUsed($id)) {
             $_SESSION['flash'] = 'Kategori tidak dapat dihapus karena masih digunakan oleh produk.';
         } else {
-            $stmt = $db->prepare("DELETE FROM kategori_product WHERE id = ?");
-            $stmt->bind_param('i', $id);
-            $stmt->execute();
+            $this->model->delete($id);
             $_SESSION['flash'] = 'Kategori berhasil dihapus.';
         }
 
