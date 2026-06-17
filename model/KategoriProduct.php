@@ -10,8 +10,24 @@ class KategoriProduct
         $this->db = getDB();
     }
 
-    public function getAll(): array
+    public function getAll(String $search = ''): array
     {
+        if($search !== '') {
+            $like = "%{$search}";
+            $stmt = $this->db->prepare(
+                "SELECT k.*, COUNT(p.id) AS jumlah_produk
+                 FROM kategori_product k
+                 LEFT JOIN product p ON p.kategori_id = k.id
+                 WHERE k.nama_kategori LIKE ? OR k.deskripsi LIKE ?
+                 GROUP BY k.id
+                 ORDER BY k.nama_kategori"
+            );
+
+            $stmt->bind_param('ss', $like, $like);
+            $stmt->execute();
+            return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        }
+
         return $this->db->query(
             "SELECT k.*, COUNT(p.id) AS jumlah_produk
              FROM kategori_product k

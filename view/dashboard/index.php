@@ -15,7 +15,10 @@
                 <div>
                     <p class="text-muted small mb-1">Total Produk</p>
                     <h3 class="fw-bold mb-1"><?= number_format($totalProduk) ?></h3>
-                    <span class="text-success small"><i class="bi bi-arrow-up"></i> Data produk aktif</span>
+                    <span class="text-success small">
+                        <i class="bi bi-arrow-up"></i>
+                        <?= $persenProdukAman ?>% produk aman
+                    </span>
                 </div>
                 <div class="stat-icon bg-primary bg-opacity-10 text-primary rounded-3 p-3">
                     <i class="bi bi-box-seam fs-4"></i>
@@ -39,7 +42,7 @@
                         : 'Rp ' . number_format($nilaiStok, 0, ',', '.');
                     ?>
                     <h3 class="fw-bold mb-1"><?= $nilaiStokFormatted ?></h3>
-                    <span class="text-success small"><i class="bi bi-arrow-up"></i> Total nilai inventaris</span>
+                    <span class="text-success small"></i> Total nilai inventaris</span>
                 </div>
                 <div class="stat-icon bg-success bg-opacity-10 text-success rounded-3 p-3">
                     <i class="bi bi-currency-dollar fs-4"></i>
@@ -55,7 +58,7 @@
                 <div>
                     <p class="text-muted small mb-1">Transaksi Hari Ini</p>
                     <h3 class="fw-bold mb-1"><?= $totalTRXHariIni ?></h3>
-                    <span class="text-success small"><i class="bi bi-arrow-up"></i> Transaksi selesai</span>
+                    <span class="text-success small">Transaksi selesai</span>
                 </div>
                 <div class="stat-icon bg-warning bg-opacity-10 text-warning rounded-3 p-3">
                     <i class="bi bi-graph-up-arrow fs-4"></i>
@@ -71,10 +74,26 @@
                 <div>
                     <p class="text-muted small mb-1">Stok Menipis</p>
                     <h3 class="fw-bold mb-1"><?= $stockMenipis ?></h3>
+                    <?php
+                    $persenStokMenipis = 0;
+
+                    if ($totalProduk > 0) {
+                        $persenStokMenipis = round(
+                            ($stockMenipis / $totalProduk) * 100
+                        );
+                    }
+                    ?>
+
                     <?php if ($stockMenipis > 0): ?>
-                        <span class="text-danger small"><i class="bi bi-arrow-down"></i> Perlu segera diisi</span>
+                        <span class="text-danger small">
+                            <i class="bi bi-arrow-down"></i>
+                            <?= $persenStokMenipis ?>% produk perlu restock
+                        </span>
                     <?php else: ?>
-                        <span class="text-success small"><i class="bi bi-check-circle"></i> Stok aman</span>
+                        <span class="text-success small">
+                            <i class="bi bi-check-circle"></i>
+                            0% produk bermasalah
+                        </span>
                     <?php endif; ?>
                 </div>
                 <div class="stat-icon bg-danger bg-opacity-10 text-danger rounded-3 p-3">
