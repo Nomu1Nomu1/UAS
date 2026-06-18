@@ -67,12 +67,6 @@
                                 </button>
 
                             </form>
-
-                            <div class="auth-link">
-                                Belum punya akun?
-                                <a href="/UAS/?page=auth&action=register">Daftar</a>
-                            </div>
-
                         </div>
 
                         <div class="col-lg-6 auth-right d-flex flex-column justify-content-center">
