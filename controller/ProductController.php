@@ -11,7 +11,6 @@ class ProductController
         $search = trim($_GET['search'] ?? '');
         $katId  = (int) ($_GET['kategori_id'] ?? 0);
 
-        // FIX: missing space between "distributors" and alias "d"
         $sql    = "SELECT p.*, k.nama_kategori, d.nama_distributor
                    FROM product p
                    JOIN kategori_product k ON p.kategori_id    = k.id
@@ -92,37 +91,49 @@ class ProductController
         $error = '';
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $kode       = trim($_POST['kode_barang']    ?? '');
-            $nama       = trim($_POST['nama_barang']    ?? '');
-            $kategori_id = (int)   ($_POST['kategori_id']    ?? 0);
-            $dist_id    = (int)   ($_POST['distributor_id']  ?? 0);
-            $stock      = (int)   ($_POST['stock']           ?? 0);
-            $stock_min  = (int)   ($_POST['stock_min']       ?? 0);
-            $harga_beli = (float) ($_POST['harga_beli']      ?? 0);
-            $harga_jual = (float) ($_POST['harga_jual']      ?? 0);
-            $satuan     = trim($_POST['satuan']              ?? '');
-            $deskripsi  = trim($_POST['deskripsi']           ?? '') ?: null;
+            $kode        = trim($_POST['kode_barang']   ?? '');
+            $nama        = trim($_POST['nama_barang']   ?? '');
+            $kategori_id = (int)   ($_POST['kategori_id']   ?? 0);
+            $dist_id     = (int)   ($_POST['distributor_id'] ?? 0);
+            $stock       = (int)   ($_POST['stock']          ?? 0);
+            $stock_min   = (int)   ($_POST['stock_min']      ?? 0);
+            $harga_beli  = (float) ($_POST['harga_beli']     ?? 0);
+            $harga_jual  = (float) ($_POST['harga_jual']     ?? 0);
+            $satuan      = trim($_POST['satuan']             ?? '');
+            $deskripsi   = trim($_POST['deskripsi']          ?? '') ?: null;
 
             if (empty($kode) || empty($nama) || !$kategori_id || !$dist_id || empty($satuan)) {
                 $error = 'Semua field wajib diisi.';
             } else {
-                $now  = date('Y-m-d H:i:s');
-                $stmt = $db->prepare(
-                    "INSERT INTO product
-                        (kode_barang, nama_barang, kategori_id, distributor_id,
-                         stock, stock_min, harga_beli, harga_jual, satuan, deskripsi, createdAt, updatedAt)
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-                );
-                $stmt->bind_param(
-                    'ssiiiiddssss',
-                    $kode, $nama, $kategori_id, $dist_id,
-                    $stock, $stock_min, $harga_beli, $harga_jual,
-                    $satuan, $deskripsi, $now, $now
-                );
-                if ($stmt->execute()) {
-                    redirect('product/index');
-                } else {
-                    $error = 'Kode barang sudah digunakan.';
+                // Upload foto jika ada
+                $foto = null;
+                if (!empty($_FILES['foto']['tmp_name'])) {
+                    require_once __DIR__ . '/../model/Product.php';
+                    $foto = Product::uploadFoto($_FILES['foto']);
+                    if ($foto === null) {
+                        $error = 'Gagal upload foto. Pastikan format file adalah JPG, PNG, GIF, atau WEBP.';
+                    }
+                }
+
+                if (empty($error)) {
+                    $now  = date('Y-m-d H:i:s');
+                    $stmt = $db->prepare(
+                        "INSERT INTO product
+                            (kode_barang, nama_barang, kategori_id, distributor_id,
+                             stock, stock_min, harga_beli, harga_jual, satuan, deskripsi, foto, createdAt, updatedAt)
+                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+                    );
+                    $stmt->bind_param(
+                        'ssiiiiddsssss',
+                        $kode, $nama, $kategori_id, $dist_id,
+                        $stock, $stock_min, $harga_beli, $harga_jual,
+                        $satuan, $deskripsi, $foto, $now, $now
+                    );
+                    if ($stmt->execute()) {
+                        redirect('product/index');
+                    } else {
+                        $error = 'Kode barang sudah digunakan.';
+                    }
                 }
             }
         }
@@ -155,38 +166,80 @@ class ProductController
         $error = '';
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $kode       = trim($_POST['kode_barang']   ?? '');
-            $nama       = trim($_POST['nama_barang']   ?? '');
+            $kode        = trim($_POST['kode_barang']   ?? '');
+            $nama        = trim($_POST['nama_barang']   ?? '');
             $kategori_id = (int)   ($_POST['kategori_id']   ?? 0);
-            $dist_id    = (int)   ($_POST['distributor_id'] ?? 0);
-            $stock      = (int)   ($_POST['stock']          ?? 0);
-            $stock_min  = (int)   ($_POST['stock_min']      ?? 0);
-            $harga_beli = (float) ($_POST['harga_beli']     ?? 0);
-            $harga_jual = (float) ($_POST['harga_jual']     ?? 0);
-            $satuan     = trim($_POST['satuan']             ?? '');
-            $deskripsi  = trim($_POST['deskripsi']          ?? '') ?: null;
+            $dist_id     = (int)   ($_POST['distributor_id'] ?? 0);
+            $stock       = (int)   ($_POST['stock']          ?? 0);
+            $stock_min   = (int)   ($_POST['stock_min']      ?? 0);
+            $harga_beli  = (float) ($_POST['harga_beli']     ?? 0);
+            $harga_jual  = (float) ($_POST['harga_jual']     ?? 0);
+            $satuan      = trim($_POST['satuan']             ?? '');
+            $deskripsi   = trim($_POST['deskripsi']          ?? '') ?: null;
+            $hapusFoto   = isset($_POST['hapus_foto']) && $_POST['hapus_foto'] === '1';
 
             if (empty($kode) || empty($nama) || !$kategori_id || !$dist_id || empty($satuan)) {
                 $error = 'Semua field wajib diisi.';
             } else {
-                $now  = date('Y-m-d H:i:s');
-                $stmt = $db->prepare(
-                    "UPDATE product
-                     SET kode_barang = ?, nama_barang = ?, kategori_id = ?, distributor_id = ?,
-                         stock = ?, stock_min = ?, harga_beli = ?, harga_jual = ?,
-                         satuan = ?, deskripsi = ?, updatedAt = ?
-                     WHERE id = ?"
-                );
-                $stmt->bind_param(
-                    'ssiiiiddsssi',
-                    $kode, $nama, $kategori_id, $dist_id,
-                    $stock, $stock_min, $harga_beli, $harga_jual,
-                    $satuan, $deskripsi, $now, $id
-                );
-                if ($stmt->execute()) {
-                    redirect('product/index');
-                } else {
-                    $error = 'Kode barang sudah digunakan oleh produk lain.';
+                require_once __DIR__ . '/../model/Product.php';
+                $fotoLama = $product['foto'] ?? null;
+                $fotoUpdate = null;
+
+                if ($hapusFoto && $fotoLama) {
+                    $uploadDir = __DIR__ . '/../uploads/produk/';
+                    if (file_exists($uploadDir . $fotoLama)) @unlink($uploadDir . $fotoLama);
+                    $fotoUpdate = '';
+                }
+
+                if (!empty($_FILES['foto']['tmp_name'])) {
+                    $namaFotoBaru = Product::uploadFoto($_FILES['foto'], $fotoLama);
+                    if ($namaFotoBaru === null) {
+                        $error = 'Gagal upload foto. Pastikan format file adalah JPG, PNG, GIF, atau WEBP.';
+                    } else {
+                        $fotoUpdate = $namaFotoBaru;
+                    }
+                }
+
+                if (empty($error)) {
+                    $now  = date('Y-m-d H:i:s');
+
+                    if ($fotoUpdate !== null) {
+                        $fotoDb = $fotoUpdate === '' ? null : $fotoUpdate;
+                        $stmt = $db->prepare(
+                            "UPDATE product
+                             SET kode_barang = ?, nama_barang = ?, kategori_id = ?, distributor_id = ?,
+                                 stock = ?, stock_min = ?, harga_beli = ?, harga_jual = ?,
+                                 satuan = ?, deskripsi = ?, foto = ?, updatedAt = ?
+                             WHERE id = ?"
+                        );
+                        $stmt->bind_param(
+                            'ssiiiiddssssi',
+                            $kode, $nama, $kategori_id, $dist_id,
+                            $stock, $stock_min, $harga_beli, $harga_jual,
+                            $satuan, $deskripsi, $fotoDb, $now, $id
+                        );
+                    } else {
+                        // Tidak ada perubahan foto
+                        $stmt = $db->prepare(
+                            "UPDATE product
+                             SET kode_barang = ?, nama_barang = ?, kategori_id = ?, distributor_id = ?,
+                                 stock = ?, stock_min = ?, harga_beli = ?, harga_jual = ?,
+                                 satuan = ?, deskripsi = ?, updatedAt = ?
+                             WHERE id = ?"
+                        );
+                        $stmt->bind_param(
+                            'ssiiiiddsssi',
+                            $kode, $nama, $kategori_id, $dist_id,
+                            $stock, $stock_min, $harga_beli, $harga_jual,
+                            $satuan, $deskripsi, $now, $id
+                        );
+                    }
+
+                    if ($stmt->execute()) {
+                        redirect('product/index');
+                    } else {
+                        $error = 'Kode barang sudah digunakan oleh produk lain.';
+                    }
                 }
             }
         }
@@ -203,7 +256,6 @@ class ProductController
         $id = (int) ($_GET['id'] ?? 0);
         $db = getDB();
 
-        // FIX: gunakan prepared statement
         $stmt = $db->prepare("SELECT COUNT(*) AS c FROM detail_transaksi WHERE produk_id = ?");
         $stmt->bind_param('i', $id);
         $stmt->execute();
@@ -212,6 +264,15 @@ class ProductController
         if ($used > 0) {
             $_SESSION['flash'] = 'Produk tidak dapat dihapus karena sudah ada di transaksi.';
         } else {
+            $stmtFoto = $db->prepare("SELECT foto FROM product WHERE id = ?");
+            $stmtFoto->bind_param('i', $id);
+            $stmtFoto->execute();
+            $row = $stmtFoto->get_result()->fetch_assoc();
+            if ($row && $row['foto']) {
+                $fotoPath = __DIR__ . '/../uploads/produk/' . $row['foto'];
+                if (file_exists($fotoPath)) @unlink($fotoPath);
+            }
+
             $stmt = $db->prepare("DELETE FROM product WHERE id = ?");
             $stmt->bind_param('i', $id);
             $stmt->execute();

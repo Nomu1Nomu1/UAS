@@ -177,7 +177,7 @@
                 Simpan
             </button>
 
-            <a href="<?= BASE_URL ?>/pengadaan/index"
+            <a href="<?= BASE_URL ?>/?page=pengadaan&action=index"
                class="btn btn-outline-secondary px-4"
                style="border-radius:12px;">
                 Batal

@@ -65,7 +65,7 @@ class Product
     {
         $where = $onlyInStock ? "WHERE stock > 0" : "";
         return $this->db->query(
-            "SELECT id, kode_barang, nama_barang, harga_jual, harga_beli, stock, satuan
+            "SELECT id, kode_barang, nama_barang, harga_jual, harga_beli, stock, satuan, foto
              FROM product {$where} ORDER BY nama_barang"
         )->fetch_all(MYSQLI_ASSOC);
     }
@@ -74,73 +74,13 @@ class Product
     {
         return $this->db->query(
             "SELECT p.kode_barang, p.nama_barang, p.stock, p.stock_min,
-                    p.satuan, k.nama_kategori, d.nama_distributor, d.no_hp AS dist_no_hp
+                    p.satuan, p.foto, k.nama_kategori, d.nama_distributor, d.no_hp AS dist_no_hp
              FROM product p
              JOIN kategori_product k ON p.kategori_id    = k.id
              JOIN distributors     d ON p.distributor_id = d.id
              WHERE p.stock <= p.stock_min
              ORDER BY p.stock ASC"
         )->fetch_all(MYSQLI_ASSOC);
-    }
-
-    public function create(
-        string  $kode_barang,
-        string  $nama_barang,
-        int     $kategori_id,
-        int     $distributor_id,
-        int     $stock,
-        int     $stock_min,
-        float   $harga_beli,
-        float   $harga_jual,
-        string  $satuan,
-        ?string $deskripsi = null
-    ): bool {
-        $now  = date('Y-m-d H:i:s');
-        $stmt = $this->db->prepare(
-            "INSERT INTO product
-                (kode_barang, nama_barang, kategori_id, distributor_id,
-                 stock, stock_min, harga_beli, harga_jual, satuan, deskripsi, createdAt, updatedAt)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-        );
-        // FIX: bind string yang benar — spasi dihapus
-        $stmt->bind_param(
-            'ssiiiiddssss',
-            $kode_barang, $nama_barang, $kategori_id, $distributor_id,
-            $stock, $stock_min, $harga_beli, $harga_jual,
-            $satuan, $deskripsi, $now, $now
-        );
-        return $stmt->execute();
-    }
-
-    public function update(
-        int     $id,
-        string  $kode_barang,
-        string  $nama_barang,
-        int     $kategori_id,
-        int     $distributor_id,
-        int     $stock,
-        int     $stock_min,
-        float   $harga_beli,
-        float   $harga_jual,
-        string  $satuan,
-        ?string $deskripsi = null
-    ): bool {
-        $now  = date('Y-m-d H:i:s');
-        $stmt = $this->db->prepare(
-            "UPDATE product
-             SET kode_barang = ?, nama_barang = ?, kategori_id = ?, distributor_id = ?,
-                 stock = ?, stock_min = ?, harga_beli = ?, harga_jual = ?,
-                 satuan = ?, deskripsi = ?, updatedAt = ?
-             WHERE id = ?"
-        );
-        // FIX: bind string yang benar
-        $stmt->bind_param(
-            'ssiiiiddsssi',
-            $kode_barang, $nama_barang, $kategori_id, $distributor_id,
-            $stock, $stock_min, $harga_beli, $harga_jual,
-            $satuan, $deskripsi, $now, $id
-        );
-        return $stmt->execute();
     }
 
     public function tambahStok(int $id, int $qty): bool
@@ -177,5 +117,38 @@ class Product
         $stmt = $this->db->prepare("DELETE FROM product WHERE id = ?");
         $stmt->bind_param('i', $id);
         return $stmt->execute();
+    }
+    public static function uploadFoto(array $fileInput, ?string $fotoLama = null): ?string
+    {
+        if (empty($fileInput['tmp_name'])) return null;
+        if ($fileInput['error'] !== UPLOAD_ERR_OK) return null;
+
+        $allowed  = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        $mime     = mime_content_type($fileInput['tmp_name']);
+        if (!in_array($mime, $allowed)) return null;
+
+        // Validasi ukuran maks 2MB
+        if ($fileInput['size'] > 2 * 1024 * 1024) return null;
+
+        $ext      = strtolower(pathinfo($fileInput['name'], PATHINFO_EXTENSION));
+        $namaFile = uniqid('prod_', true) . '.' . $ext;
+        $dir      = __DIR__ . '/../uploads/produk/';
+        $tujuan   = $dir . $namaFile;
+
+        if (!move_uploaded_file($fileInput['tmp_name'], $tujuan)) return null;
+
+        // Hapus foto lama
+        if ($fotoLama && file_exists($dir . $fotoLama)) {
+            @unlink($dir . $fotoLama);
+        }
+
+        return $namaFile;
+    }
+    public static function fotoUrl(?string $foto): string
+    {
+        if (!empty($foto)) {
+            return '/UAS/uploads/produk/' . htmlspecialchars($foto);
+        }
+        return '/UAS/assets/img/no-image.svg';
     }
 }

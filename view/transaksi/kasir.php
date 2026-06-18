@@ -27,14 +27,26 @@
 
         <div class="product-grid" id="productGrid">
             <?php foreach ($products as $p): ?>
+                <?php
+                    $fotoSrc = !empty($p['foto'])
+                        ? '/UAS/uploads/produk/' . htmlspecialchars($p['foto'])
+                        : null;
+                ?>
                 <div class="product-card <?= $p['stock'] <= 0 ? 'out-of-stock' : '' ?>" data-id="<?= $p['id'] ?>"
                     data-name="<?= htmlspecialchars($p['nama_barang']) ?>"
                     data-code="<?= htmlspecialchars($p['kode_barang']) ?>" data-price="<?= $p['harga_jual'] ?>"
                     data-stock="<?= $p['stock'] ?>" data-satuan="<?= htmlspecialchars($p['satuan']) ?>"
                     data-search="<?= strtolower(htmlspecialchars($p['nama_barang'] . ' ' . $p['kode_barang'])) ?>"
                     onclick="addToCart(this)">
-                    <div class="product-img">
-                        <i class="bi bi-cart3"></i>
+                    <div class="product-img" style="overflow:hidden; background:#f1f5f9;">
+                        <?php if ($fotoSrc): ?>
+                            <img src="<?= $fotoSrc ?>"
+                                 alt="<?= htmlspecialchars($p['nama_barang']) ?>"
+                                 style="width:100%; height:100%; object-fit:cover; display:block;"
+                                 loading="lazy">
+                        <?php else: ?>
+                            <i class="bi bi-box-seam" style="font-size:2rem; color:#94a3b8;"></i>
+                        <?php endif; ?>
                     </div>
                     <div class="product-info">
                         <div class="product-name"><?= htmlspecialchars($p['nama_barang']) ?></div>
