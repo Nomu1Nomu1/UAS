@@ -48,7 +48,7 @@
                                 </div>
                             <?php endif; ?>
 
-                            <form method="POST" action="/UAS/?page=auth&action=login">
+                            <form method="POST" action="/?page=auth&action=login">
 
                                 <div class="mb-3">
                                     <label class="form-label">Username</label>

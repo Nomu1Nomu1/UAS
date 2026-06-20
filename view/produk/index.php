@@ -11,7 +11,7 @@ unset($_SESSION['flash']);
         <p class="text-secondary">Kelola semua produk inventaris</p>
     </div>
 
-    <a href="/UAS/?page=product&action=create"
+    <a href="/?page=product&action=create"
        class="btn btn-primary px-4"
        style="border-radius:14px; font-weight:600;">
         <i class="bi bi-plus-lg me-2"></i>Tambah Produk
@@ -27,7 +27,7 @@ unset($_SESSION['flash']);
 
 <!-- Filter -->
 <div class="card-section mb-4">
-    <form method="GET" action="/UAS/" class="row g-3 align-items-end">
+    <form method="GET" action="/" class="row g-3 align-items-end">
         <input type="hidden" name="page" value="product">
         <input type="hidden" name="action" value="index">
 
@@ -61,7 +61,7 @@ unset($_SESSION['flash']);
             <button type="submit" class="btn btn-primary" style="border-radius:12px; font-weight:600;">
                 <i class="bi bi-funnel me-1"></i>Cari
             </button>
-            <a href="/UAS/?page=product&action=index"
+            <a href="/?page=product&action=index"
                class="btn btn-outline-secondary" style="border-radius:12px;">
                 <i class="bi bi-x-lg"></i>
             </a>
@@ -100,7 +100,7 @@ unset($_SESSION['flash']);
                 <?php foreach ($products as $i => $p): ?>
                     <?php
                     $fotoSrc = !empty($p['foto'])
-                        ? '/UAS/uploads/produk/' . htmlspecialchars($p['foto'])
+                        ? '/uploads/produk/' . htmlspecialchars($p['foto'])
                         : null;
                     ?>
                     <tr>
@@ -146,15 +146,15 @@ unset($_SESSION['flash']);
                         <td><?= htmlspecialchars($p['nama_distributor']) ?></td>
 
                         <td class="text-center pe-3">
-                            <a href="/UAS/?page=product&action=show&id=<?= $p['id'] ?>"
+                            <a href="/?page=product&action=show&id=<?= $p['id'] ?>"
                                class="btn btn-sm btn-outline-info me-1" style="border-radius:8px;" title="Detail">
                                 <i class="bi bi-eye"></i>
                             </a>
-                            <a href="/UAS/?page=product&action=edit&id=<?= $p['id'] ?>"
+                            <a href="/?page=product&action=edit&id=<?= $p['id'] ?>"
                                class="btn btn-sm btn-outline-warning me-1" style="border-radius:8px;" title="Edit">
                                 <i class="bi bi-pencil"></i>
                             </a>
-                            <a href="/UAS/?page=product&action=delete&id=<?= $p['id'] ?>"
+                            <a href="/?page=product&action=delete&id=<?= $p['id'] ?>"
                                class="btn btn-sm btn-outline-danger" style="border-radius:8px;" title="Hapus"
                                onclick="return confirm('Yakin hapus produk ini?')">
                                 <i class="bi bi-trash"></i>

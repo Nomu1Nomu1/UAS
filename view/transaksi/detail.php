@@ -7,7 +7,7 @@
             <span class="text-primary fw-semibold"><?= htmlspecialchars($transaksi['no_trx']) ?></span>
         </p>
     </div>
-    <a href="/UAS/?page=transaksi&action=index" class="btn btn-outline-secondary" style="border-radius:12px;">
+    <a href="/?page=transaksi&action=index" class="btn btn-outline-secondary" style="border-radius:12px;">
         <i class="bi bi-arrow-left me-1"></i>Kembali
     </a>
 </div>
@@ -72,7 +72,7 @@
             </div>
 
             <?php if ($transaksi['status'] === 'Selesai'): ?>
-                <a href="/UAS/?page=transaksi&action=batal&id=<?= $transaksi['id'] ?>"
+                <a href="/?page=transaksi&action=batal&id=<?= $transaksi['id'] ?>"
                     class="btn btn-outline-danger w-100 mt-4" style="border-radius:12px;"
                     onclick="return confirm('Batalkan transaksi ini? Stok akan dikembalikan.')">
                     <i class="bi bi-x-circle me-2"></i>Batalkan Transaksi

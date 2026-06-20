@@ -12,8 +12,8 @@
 href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     
 
-    <link rel="stylesheet" href="/UAS/assets/css/custom.css">
-    <link rel="stylesheet" href="/UAS/assets/css/kasir.css">
+    <link rel="stylesheet" href="/assets/css/custom.css">
+    <link rel="stylesheet" href="/assets/css/kasir.css">
 </head>
 
 <body>

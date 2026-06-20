@@ -10,7 +10,7 @@ unset($_SESSION['flash']);
     <h1 class="fw-bold">Data Distributor</h1>
     <p class="text-secondary">Kelola data distributor/supplier</p>
     </div>
-    <a href="/UAS/?page=distributor&action=create" class="btn btn-primary px-4"
+    <a href="/?page=distributor&action=create" class="btn btn-primary px-4"
         style="border-radius:14px; font-weight:600;">
         <i class="bi bi-plus-lg me-2"></i>Tambah Distributor
     </a>
@@ -25,7 +25,7 @@ unset($_SESSION['flash']);
 
 <!-- Search -->
 <div class="card-section mb-4">
-    <form method="GET" action="/UAS/" class="row g-3 align-items-end">
+    <form method="GET" action="/" class="row g-3 align-items-end">
         <input type="hidden" name="page" value="distributor">
         <input type="hidden" name="action" value="index">
 
@@ -46,7 +46,7 @@ unset($_SESSION['flash']);
             <button type="submit" class="btn btn-primary" style="border-radius:12px; font-weight:600;">
                 <i class="bi bi-funnel me-1"></i>Cari
             </button>
-            <a href="/UAS/?page=distributor&action=index" class="btn btn-outline-secondary" style="border-radius:12px;">
+            <a href="/?page=distributor&action=index" class="btn btn-outline-secondary" style="border-radius:12px;">
                 <i class="bi bi-x-lg"></i>
             </a>
         </div>
@@ -105,12 +105,12 @@ unset($_SESSION['flash']);
                                 <?php endif; ?>
                             </td>
                             <td class="text-center pe-3">
-                                <a href="/UAS/?page=distributor&action=edit&id=<?= $d['id'] ?>"
+                                <a href="/?page=distributor&action=edit&id=<?= $d['id'] ?>"
                                     class="btn btn-sm btn-outline-warning me-1"
                                     style="border-radius:8px;" title="Edit">
                                     <i class="bi bi-pencil"></i>
                                 </a>
-                                <a href="/UAS/?page=distributor&action=delete&id=<?= $d['id'] ?>"
+                                <a href="/?page=distributor&action=delete&id=<?= $d['id'] ?>"
                                     class="btn btn-sm btn-outline-danger"
                                     style="border-radius:8px;" title="Hapus"
                                     onclick="return confirm('Yakin hapus distributor <?= htmlspecialchars($d['nama_distributor']) ?>?')">

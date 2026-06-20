@@ -1,7 +1,7 @@
 <?php ob_start(); ?>
 
 <div class="mb-4">
-    <a href="/UAS/?page=product&action=index"
+    <a href="/?page=product&action=index"
        class="text-muted text-decoration-none small">
         <i class="bi bi-arrow-left"></i>
         Kembali ke Data Produk
@@ -19,7 +19,7 @@
         <div class="col-12 col-md-3 text-center">
             <?php
                 $fotoSrc = !empty($product['foto'])
-                    ? '/UAS/uploads/produk/' . htmlspecialchars($product['foto'])
+                    ? '/uploads/produk/' . htmlspecialchars($product['foto'])
                     : null;
             ?>
             <?php if ($fotoSrc): ?>
@@ -125,11 +125,11 @@
     <hr class="my-4">
 
     <div class="d-flex gap-2">
-        <a href="/UAS/?page=product&action=edit&id=<?= $product['id'] ?>"
+        <a href="/?page=product&action=edit&id=<?= $product['id'] ?>"
            class="btn btn-warning px-4" style="border-radius:12px;">
             <i class="bi bi-pencil-square me-2"></i>Edit Produk
         </a>
-        <a href="/UAS/?page=product&action=index"
+        <a href="/?page=product&action=index"
            class="btn btn-outline-secondary px-4" style="border-radius:12px;">
             Kembali
         </a>

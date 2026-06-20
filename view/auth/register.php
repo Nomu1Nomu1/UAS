@@ -42,7 +42,7 @@
                                 </div>
                             <?php endif; ?>
 
-                            <form method="POST" action="/UAS/?page=auth&action=register">
+                            <form method="POST" action="/?page=auth&action=register">
 
                                 <div class="row">
 
@@ -100,7 +100,7 @@
 
                             <div class="auth-link">
                                 Sudah punya akun?
-                                <a href="/UAS/?page=auth&action=login">Login</a>
+                                <a href="/?page=auth&action=login">Login</a>
                             </div>
 
                         </div>

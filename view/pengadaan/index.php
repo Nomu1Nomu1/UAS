@@ -11,7 +11,7 @@ unset($_SESSION['flash']);
         <p class="text-secondary">Kelola pengadaan barang dari distributor</p>
     </div>
 
-    <a href="/UAS/?page=pengadaan&action=create"
+    <a href="/?page=pengadaan&action=create"
        class="btn btn-primary px-4"
        style="border-radius:14px; font-weight:600;">
         <i class="bi bi-plus-lg me-2"></i>Tambah Pengadaan
@@ -28,7 +28,7 @@ unset($_SESSION['flash']);
 <!-- Filter -->
 <div class="card-section mb-4">
 
-    <form method="GET" action="/UAS/" class="row g-3 align-items-end">
+    <form method="GET" action="/" class="row g-3 align-items-end">
 
         <input type="hidden" name="page" value="pengadaan">
         <input type="hidden" name="action" value="index">
@@ -90,7 +90,7 @@ unset($_SESSION['flash']);
                 <i class="bi bi-funnel me-1"></i>Cari
             </button>
 
-            <a href="/UAS/?page=pengadaan&action=index"
+            <a href="/?page=pengadaan&action=index"
                class="btn btn-outline-secondary"
                style="border-radius:12px;">
                 <i class="bi bi-x-lg"></i>
@@ -184,7 +184,7 @@ unset($_SESSION['flash']);
 
                             <td class="text-center pe-3">
 
-                                <a href="/UAS/?page=pengadaan&action=detail&id=<?= $p['id'] ?>"
+                                <a href="/?page=pengadaan&action=detail&id=<?= $p['id'] ?>"
                                    class="btn btn-sm btn-outline-info me-1"
                                    style="border-radius:8px;"
                                    title="Detail">
@@ -193,7 +193,7 @@ unset($_SESSION['flash']);
 
                                 <?php if ($p['status'] === 'Pending'): ?>
 
-                                    <a href="/UAS/?page=pengadaan&action=terima&id=<?= $p['id'] ?>"
+                                    <a href="/?page=pengadaan&action=terima&id=<?= $p['id'] ?>"
                                        class="btn btn-sm btn-outline-success me-1"
                                        style="border-radius:8px;"
                                        title="Terima"
@@ -201,7 +201,7 @@ unset($_SESSION['flash']);
                                         <i class="bi bi-check-lg"></i>
                                     </a>
 
-                                    <a href="/UAS/?page=pengadaan&action=batal&id=<?= $p['id'] ?>"
+                                    <a href="/?page=pengadaan&action=batal&id=<?= $p['id'] ?>"
                                        class="btn btn-sm btn-outline-danger"
                                        style="border-radius:8px;"
                                        title="Batalkan"

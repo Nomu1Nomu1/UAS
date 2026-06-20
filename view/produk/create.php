@@ -1,7 +1,7 @@
 <?php ob_start(); ?>
 
 <div class="mb-4">
-    <a href="/UAS/?page=product&action=index"
+    <a href="/?page=product&action=index"
        class="text-muted text-decoration-none small">
         <i class="bi bi-arrow-left"></i>
         Kembali ke Data Produk
@@ -24,7 +24,7 @@
 <div class="card-section">
 
     <form method="POST"
-          action="/UAS/?page=product&action=create"
+          action="/?page=product&action=create"
           enctype="multipart/form-data">
 
         <div class="row g-3">
@@ -151,7 +151,7 @@
             <button type="submit" class="btn btn-primary px-4" style="border-radius:12px; font-weight:600;">
                 <i class="bi bi-check-lg me-2"></i>Simpan
             </button>
-            <a href="/UAS/?page=product&action=index"
+            <a href="/?page=product&action=index"
                class="btn btn-outline-secondary px-4" style="border-radius:12px;">
                 Batal
             </a>

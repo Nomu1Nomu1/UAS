@@ -5,7 +5,7 @@
         <h1 class="fw-bold">Kasir / Transaksi</h1>
         <p class="text-secondary">Point of Sale sistem</p>
     </div>
-    <a href="/UAS/?page=transaksi&action=index" class="btn btn-outline-secondary" style="border-radius:12px;">
+    <a href="/?page=transaksi&action=index" class="btn btn-outline-secondary" style="border-radius:12px;">
         <i class="bi bi-list-ul me-1"></i> Riwayat Transaksi
     </a>
 </div>
@@ -29,7 +29,7 @@
             <?php foreach ($products as $p): ?>
                 <?php
                     $fotoSrc = !empty($p['foto'])
-                        ? '/UAS/uploads/produk/' . htmlspecialchars($p['foto'])
+                        ? '/uploads/produk/' . htmlspecialchars($p['foto'])
                         : null;
                 ?>
                 <div class="product-card <?= $p['stock'] <= 0 ? 'out-of-stock' : '' ?>" data-id="<?= $p['id'] ?>"
@@ -104,13 +104,13 @@
 </div>
 
 <!-- Hidden form for submit -->
-<form id="trxForm" action="/UAS/?page=transaksi&action=create" method="POST" style="display:none;">
+<form id="trxForm" action="/?page=transaksi&action=create" method="POST" style="display:none;">
     <input type="hidden" name="bayar" id="formBayar">
     <input type="hidden" name="keterangan" id="formKeterangan">
     <div id="formItems"></div>
 </form>
 
-<script src="/UAS/assets/js/kasir.js"></script>
+<script src="/assets/js/kasir.js"></script>
 <?php
 $content = ob_get_clean();
 require_once __DIR__ . '/../layouts/main.php';

@@ -147,8 +147,8 @@ class Product
     public static function fotoUrl(?string $foto): string
     {
         if (!empty($foto)) {
-            return '/UAS/uploads/produk/' . htmlspecialchars($foto);
+            return '/uploads/produk/' . htmlspecialchars($foto);
         }
-        return '/UAS/assets/img/no-image.svg';
+        return '/assets/img/no-image.svg';
     }
 }

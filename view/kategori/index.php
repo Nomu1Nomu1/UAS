@@ -10,7 +10,7 @@ unset($_SESSION['flash']);
         <h1 class="fw-bold">Data Kategori</h1>
         <p class="text-secondary">Kelola kategori produk</p>
     </div>
-    <a href="/UAS/?page=kategori&action=create" class="btn btn-primary px-4"
+    <a href="/?page=kategori&action=create" class="btn btn-primary px-4"
         style="border-radius:14px; font-weight:600;">
         <i class="bi bi-plus-lg me-2"></i>Tambah Kategori
     </a>
@@ -24,7 +24,7 @@ unset($_SESSION['flash']);
 <?php endif; ?>
 
 <div class="card-section mb-4">
-    <form method="GET" action="/UAS/" class="row g-3 align-items-end">
+    <form method="GET" action="/" class="row g-3 align-items-end">
         <input type="hidden" name="page" value="kategori">
         <input type="hidden" name="action" value="index">
 
@@ -45,7 +45,7 @@ unset($_SESSION['flash']);
             <button type="submit" class="btn btn-primary" style="border-radius:12px; font-weight:600;">
                 <i class="bi bi-funnel me-1"></i>Cari
             </button>
-            <a href="/UAS/?page=kategori&action=index" class="btn btn-outline-secondary" style="border-radius:12px;">
+            <a href="/?page=kategori&action=index" class="btn btn-outline-secondary" style="border-radius:12px;">
                 <i class="bi bi-x-lg"></i>
             </a>
         </div>
@@ -93,12 +93,12 @@ unset($_SESSION['flash']);
                                 </span>
                             </td>
                             <td class="text-center pe-3">
-                                <a href="/UAS/?page=kategori&action=edit&id=<?= $k['id'] ?>"
+                                <a href="/?page=kategori&action=edit&id=<?= $k['id'] ?>"
                                     class="btn btn-sm btn-outline-warning me-1"
                                     style="border-radius:8px;" title="Edit">
                                     <i class="bi bi-pencil"></i>
                                 </a>
-                                <a href="/UAS/?page=kategori&action=delete&id=<?= $k['id'] ?>"
+                                <a href="/?page=kategori&action=delete&id=<?= $k['id'] ?>"
                                     class="btn btn-sm btn-outline-danger"
                                     style="border-radius:8px;" title="Hapus"
                                     onclick="return confirm('Yakin hapus kategori <?= htmlspecialchars($k['nama_kategori']) ?>?')">

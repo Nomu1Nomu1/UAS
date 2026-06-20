@@ -17,6 +17,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Kembalikan ke halaman daftar 
-header("Location: /UAS/?page=user&action=index");
+header("Location: /?page=user&action=index");
 exit;
 ?>

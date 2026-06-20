@@ -5,7 +5,7 @@ ob_start();
 
 <div class="mb-4 d-flex justify-content-between align-items-center">
     <div>
-        <a href="/UAS/?page=user&action=index" class="text-secondary text-decoration-none mb-2 d-inline-block">
+        <a href="/?page=user&action=index" class="text-secondary text-decoration-none mb-2 d-inline-block">
             <i class="bi bi-arrow-left me-1"></i>Kembali
         </a>
         <h1 class="fw-bold">Edit</h1>
@@ -60,7 +60,7 @@ ob_start();
             <button type="submit" class="btn btn-warning px-4" style="border-radius:12px; font-weight:600;">
                 <i class="bi bi-check2-circle me-2"></i>Simpan Perubahan
             </button>
-            <a href="/UAS/?page=user&action=index" class="btn btn-outline-secondary px-4" style="border-radius:12px;">Batal</a>
+            <a href="/?page=user&action=index" class="btn btn-outline-secondary px-4" style="border-radius:12px;">Batal</a>
         </div>
 
         

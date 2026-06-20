@@ -1,7 +1,7 @@
 <?php ob_start(); ?>
 
 <div class="mb-4">
-    <a href="/UAS/?page=distributor&action=index" class="text-muted text-decoration-none small">
+    <a href="/?page=distributor&action=index" class="text-muted text-decoration-none small">
         <i class="bi bi-arrow-left"></i> Kembali ke Data Distributor
     </a>
     <h1 class="fw-bold mt-2">Edit Distributor</h1>
@@ -16,7 +16,7 @@
 <?php endif; ?>
 
 <div class="card-section" style="max-width: 720px;">
-    <form method="POST" action="/UAS/?page=distributor&action=edit&id=<?= $distributor['id'] ?>">
+    <form method="POST" action="/?page=distributor&action=edit&id=<?= $distributor['id'] ?>">
 
         <div class="mb-3">
             <label class="form-label fw-semibold small">
@@ -61,7 +61,7 @@
             <button type="submit" class="btn btn-warning px-4" style="border-radius:12px; font-weight:600;">
                 <i class="bi bi-pencil-square me-2"></i>Update
             </button>
-            <a href="/UAS/?page=distributor&action=index" class="btn btn-outline-secondary px-4" style="border-radius:12px;">
+            <a href="/?page=distributor&action=index" class="btn btn-outline-secondary px-4" style="border-radius:12px;">
                 Batal
             </a>
         </div>

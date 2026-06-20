@@ -10,7 +10,7 @@ unset($_SESSION['flash']);
         <h1 class="fw-bold">Data Transaksi</h1>
         <p class="text-secondary mb-0">Riwayat semua transaksi penjualan</p>
     </div>
-    <a href="/UAS/?page=transaksi&action=kasir" class="btn btn-primary px-4"
+    <a href="/?page=transaksi&action=kasir" class="btn btn-primary px-4"
        style="border-radius:14px; font-weight:600;">
         <i class="bi bi-plus-lg me-2"></i>Transaksi Baru
     </a>
@@ -25,7 +25,7 @@ unset($_SESSION['flash']);
 
 <!-- Filter -->
 <div class="card-section mb-4">
-    <form method="GET" action="/UAS/" class="row g-3 align-items-end">
+    <form method="GET" action="/" class="row g-3 align-items-end">
         <input type="hidden" name="page" value="transaksi">
         <input type="hidden" name="action" value="index">
 
@@ -53,7 +53,7 @@ unset($_SESSION['flash']);
             <button type="submit" class="btn btn-primary flex-fill" style="border-radius:12px; font-weight:600;">
                 <i class="bi bi-funnel me-1"></i>Filter
             </button>
-            <a href="/UAS/?page=transaksi&action=index" class="btn btn-outline-secondary" style="border-radius:12px;">
+            <a href="/?page=transaksi&action=index" class="btn btn-outline-secondary" style="border-radius:12px;">
                 <i class="bi bi-x-lg"></i>
             </a>
         </div>
@@ -115,13 +115,13 @@ unset($_SESSION['flash']);
                                 <?php endif; ?>
                             </td>
                             <td class="text-center pe-3">
-                                <a href="/UAS/?page=transaksi&action=detail&id=<?= $t['id'] ?>"
+                                <a href="/?page=transaksi&action=detail&id=<?= $t['id'] ?>"
                                    class="btn btn-sm btn-outline-primary me-1"
                                    style="border-radius:8px;" title="Detail">
                                     <i class="bi bi-eye"></i>
                                 </a>
                                 <?php if ($t['status'] === 'Selesai'): ?>
-                                    <a href="/UAS/?page=transaksi&action=batal&id=<?= $t['id'] ?>"
+                                    <a href="/?page=transaksi&action=batal&id=<?= $t['id'] ?>"
                                        class="btn btn-sm btn-outline-danger"
                                        style="border-radius:8px;" title="Batalkan"
                                        onclick="return confirm('Batalkan transaksi <?= htmlspecialchars($t['no_trx']) ?>? Stok akan dikembalikan.')">

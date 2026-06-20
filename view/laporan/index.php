@@ -111,7 +111,7 @@ function fmt_rupiah(float $n): string
             <p class="text-muted mb-0">Analisis penjualan dan inventaris</p>
         </div>
 
-        <a href="/UAS/?page=laporan&action=exportPdf&periode=<?= urlencode($periode) ?>"
+        <a href="/?page=laporan&action=exportPdf&periode=<?= urlencode($periode) ?>"
             class="btn btn-success d-flex align-items-center gap-2">
             <i class="bi bi-download"></i> Export PDF
         </a>
@@ -232,7 +232,7 @@ function fmt_rupiah(float $n): string
         <div class="row g-3">
 
             <div class="col-md-4">
-                <a href="/UAS/?page=laporan&action=penjualan"
+                <a href="/?page=laporan&action=penjualan"
                     class="report-type d-block text-decoration-none text-dark">
                     <i class="bi bi-bar-chart-line d-block"></i>
                     <div class="fw-semibold mt-2">Laporan Penjualan</div>
@@ -241,7 +241,7 @@ function fmt_rupiah(float $n): string
             </div>
 
             <div class="col-md-4">
-                <a href="/UAS/?page=laporan&action=stok" class="report-type d-block text-decoration-none text-dark">
+                <a href="/?page=laporan&action=stok" class="report-type d-block text-decoration-none text-dark">
                     <i class="bi bi-graph-up-arrow d-block"></i>
                     <div class="fw-semibold mt-2">Laporan Stok</div>
                     <small class="text-muted">Kondisi stok barang saat ini</small>
@@ -249,7 +249,7 @@ function fmt_rupiah(float $n): string
             </div>
 
             <div class="col-md-4">
-                <a href="/UAS/?page=pengadaan&action=index" class="report-type d-block text-decoration-none text-dark">
+                <a href="/?page=pengadaan&action=index" class="report-type d-block text-decoration-none text-dark">
                     <i class="bi bi-download d-block"></i>
                     <div class="fw-semibold mt-2">Laporan Pengadaan</div>
                     <small class="text-muted">Riwayat pengadaan barang</small>

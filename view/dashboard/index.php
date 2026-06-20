@@ -138,7 +138,7 @@
 
                     <?php if (count($transaksiTerakhir) > 5): ?>
                         <div class="text-center mt-3">
-                            <a href="/UAS/?page=transaksi&action=index" class="btn btn-sm btn-outline-primary">
+                            <a href="/?page=transaksi&action=index" class="btn btn-sm btn-outline-primary">
                                 Lihat Semua <i class="bi bi-arrow-right ms-1"></i>
                             </a>
                         </div>
@@ -194,7 +194,7 @@
 
                     <?php if (count($listStockMenipis) > 4): ?>
                         <div class="text-center mt-3">
-                            <a href="/UAS/?page=product&action=index" class="btn btn-sm btn-outline-danger">
+                            <a href="/?page=product&action=index" class="btn btn-sm btn-outline-danger">
                                 Lihat Semua Stok <i class="bi bi-arrow-right ms-1"></i>
                             </a>
                         </div>

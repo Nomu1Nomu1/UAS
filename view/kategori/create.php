@@ -1,7 +1,7 @@
 <?php ob_start(); ?>
 
 <div class="mb-4">
-    <a href="/UAS/?page=kategori&action=index" class="text-muted text-decoration-none small">
+    <a href="/?page=kategori&action=index" class="text-muted text-decoration-none small">
         <i class="bi bi-arrow-left"></i> Kembali ke Data Kategori
     </a>
     <h1 class="fw-bold mt-2">Tambah Kategori</h1>
@@ -16,7 +16,7 @@
 <?php endif; ?>
 
 <div class="card-section" style="max-width: 720px;">
-    <form method="POST" action="/UAS/?page=kategori&action=create">
+    <form method="POST" action="/?page=kategori&action=create">
 
         <div class="mb-3">
             <label class="form-label fw-semibold small">
@@ -37,7 +37,7 @@
             <button type="submit" class="btn btn-primary px-4" style="border-radius:12px; font-weight:600;">
                 <i class="bi bi-check-lg me-2"></i>Simpan
             </button>
-            <a href="/UAS/?page=kategori&action=index" class="btn btn-outline-secondary px-4" style="border-radius:12px;">
+            <a href="/?page=kategori&action=index" class="btn btn-outline-secondary px-4" style="border-radius:12px;">
                 Batal
             </a>
         </div>
