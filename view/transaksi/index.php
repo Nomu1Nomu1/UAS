@@ -11,7 +11,7 @@ unset($_SESSION['flash']);
         <p class="text-secondary mb-0">Riwayat semua transaksi penjualan</p>
     </div>
     <a href="/UAS/?page=transaksi&action=kasir" class="btn btn-primary px-4"
-       style="border-radius:14px; font-weight:600;">
+        style="border-radius:14px; font-weight:600;">
         <i class="bi bi-plus-lg me-2"></i>Transaksi Baru
     </a>
 </div>
@@ -19,7 +19,6 @@ unset($_SESSION['flash']);
 <?php if ($flash): ?>
     <div class="alert alert-success alert-dismissible fade show rounded-4 mb-4" role="alert">
         <i class="bi bi-check-circle me-2"></i><?= htmlspecialchars($flash) ?>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 <?php endif; ?>
 
@@ -36,17 +35,15 @@ unset($_SESSION['flash']);
                     <i class="bi bi-search text-secondary"></i>
                 </span>
                 <input type="text" name="search" class="form-control border-start-0 ps-0"
-                       placeholder="No. transaksi atau nama kasir..."
-                       value="<?= htmlspecialchars($_GET['search'] ?? '') ?>"
-                       style="border-radius:0 12px 12px 0;">
+                    placeholder="No. transaksi atau nama kasir..."
+                    value="<?= htmlspecialchars($_GET['search'] ?? '') ?>" style="border-radius:0 12px 12px 0;">
             </div>
         </div>
 
         <div class="col-md-3">
             <label class="form-label fw-semibold small">Filter Tanggal</label>
             <input type="date" name="tanggal" class="form-control"
-                   value="<?= htmlspecialchars($_GET['tanggal'] ?? '') ?>"
-                   style="border-radius:12px;">
+                value="<?= htmlspecialchars($_GET['tanggal'] ?? '') ?>" style="border-radius:12px;">
         </div>
 
         <div class="col-md-4 d-flex gap-2">
@@ -116,16 +113,20 @@ unset($_SESSION['flash']);
                             </td>
                             <td class="text-center pe-3">
                                 <a href="/UAS/?page=transaksi&action=detail&id=<?= $t['id'] ?>"
-                                   class="btn btn-sm btn-outline-primary me-1"
-                                   style="border-radius:8px;" title="Detail">
+                                    class="btn btn-sm btn-outline-primary me-1" style="border-radius:8px;" title="Detail">
                                     <i class="bi bi-eye"></i>
                                 </a>
                                 <?php if ($t['status'] === 'Selesai'): ?>
                                     <a href="/UAS/?page=transaksi&action=batal&id=<?= $t['id'] ?>"
-                                       class="btn btn-sm btn-outline-danger"
-                                       style="border-radius:8px;" title="Batalkan"
-                                       onclick="return confirm('Batalkan transaksi <?= htmlspecialchars($t['no_trx']) ?>? Stok akan dikembalikan.')">
+                                        class="btn btn-sm btn-outline-danger" style="border-radius:8px;" title="Batalkan"
+                                        onclick="return confirm('Batalkan transaksi <?= htmlspecialchars($t['no_trx']) ?>? Stok akan dikembalikan.')">
                                         <i class="bi bi-x-lg"></i>
+                                    </a>
+                                <?php else: ?>
+                                    <a href="/UAS/?page=transaksi&action=hapus&id=<?= $t['id'] ?>
+                                    "class="btn btn-sm btn-outline-danger"
+                                    onclick="return confirm('Hapus permanen riwayat transaksi ...? Tindakan ini tidak dapat dibatalkan.')">
+                                    <i class="bi bi-trash"></i>
                                     </a>
                                 <?php endif; ?>
                             </td>

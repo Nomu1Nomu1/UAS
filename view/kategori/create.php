@@ -11,7 +11,6 @@
 <?php if (!empty($error)): ?>
     <div class="alert alert-danger alert-dismissible fade show rounded-4 mb-4" role="alert">
         <i class="bi bi-exclamation-circle me-2"></i><?= htmlspecialchars($error) ?>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 <?php endif; ?>
 

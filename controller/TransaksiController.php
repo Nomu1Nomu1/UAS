@@ -242,4 +242,47 @@ class TransaksiController
         $pageTitle = 'Detail Transaksi';
         require_once __DIR__ . '/../view/transaksi/detail.php';
     }
+    
+    public function hapus(): void
+    {
+        if (!is_logged_in())
+            redirect('auth/login');
+        allow_roles(['owner', 'admin']);
+
+        $id = (int) ($_GET['id'] ?? 0);
+        $db = getDB();
+
+        $stmt = $db->prepare("SELECT * FROM transaksi WHERE id=?");
+        $stmt->bind_param('i', $id);
+        $stmt->execute();
+        $trx = $stmt->get_result()->fetch_assoc();
+
+        if (!$trx) {
+            redirect('transaksi/index');
+        }
+
+        if ($trx['status'] !== 'Batal') {
+            $_SESSION['flash'] = 'Hanya transaksi dengan status Batal yang dapat dihapus. Batalkan transaksi terlebih dahulu.';
+            redirect('transaksi/index');
+        }
+
+        $db->begin_transaction();
+        try {
+            $stmt2 = $db->prepare("DELETE FROM detail_transaksi WHERE id_trx = ?");
+            $stmt2->bind_param('i', $id);
+            $stmt2->execute();
+
+            $stmt3 = $db->prepare("DELETE FROM transaksi WHERE id = ?");
+            $stmt3->bind_param('i', $id);
+            $stmt3->execute();
+
+            $db->commit();
+            $_SESSION['flash'] = "Riwayat transaksi {$trx['no_trx']} berhasil dihapus.";
+        } catch (Exception $e) {
+            $db->rollback();
+            $_SESSION['flash'] = 'Gagal menghapus transaksi: ' . $e->getMessage();
+        }
+
+        redirect('transaksi/index');
+    }
 }

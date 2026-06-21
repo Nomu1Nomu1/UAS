@@ -13,7 +13,6 @@
 <?php if ($flash): ?>
     <div class="alert alert-info alert-dismissible fade show rounded-4 mb-4" role="alert">
         <i class="bi bi-info-circle me-2"></i><?= htmlspecialchars($flash) ?>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 <?php endif; ?>
 

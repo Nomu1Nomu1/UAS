@@ -21,7 +21,6 @@ unset($_SESSION['flash']);
 <?php if ($flash): ?>
     <div class="alert alert-success alert-dismissible fade show rounded-4 mb-4" role="alert">
         <i class="bi bi-check-circle me-2"></i><?= $flash ?>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 <?php endif; ?>
 
