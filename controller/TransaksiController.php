@@ -55,7 +55,7 @@ class TransaksiController
 
         $db = getDB();
         $products = $db->query(
-            "SELECT id, kode_barang, nama_barang, harga_jual, stock, satuan
+            "SELECT id, kode_barang, nama_barang, harga_jual, stock, satuan, foto
              FROM product WHERE stock > 0 ORDER BY nama_barang"
         )->fetch_all(MYSQLI_ASSOC);
 
